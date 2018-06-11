@@ -1,0 +1,5 @@
+County,Device ID,Batch,# of Ballot Cards,Location
+Test,5,1,32,Box #1
+Test,5,2,32,Box #2
+Test,5,3,3,Box #3
+Test,5,4,4,Box #4

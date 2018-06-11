@@ -1,0 +1,13 @@
+*.aux
+*.bin
+*.dvi
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.pdf
+*.prf
+*.tdo
+*_adt.pvs
+auto
+pvs-corla.tex

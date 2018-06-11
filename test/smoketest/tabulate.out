@@ -1,0 +1,10 @@
+ county_name |                  contest_name                   |     choice     | votes | votes_allowed |      winners       | min_margin | county_ballot_count | contest_ballot_count 
+-------------+-------------------------------------------------+----------------+-------+---------------+--------------------+------------+---------------------+----------------------
+ Arapahoe    | Regent of the University of Colorado - At Large | Clear Winner   |   123 |             1 | ["Clear Winner"]   |        109 |                 165 |                  165
+ Arapahoe    | Regent of the University of Colorado - At Large | Distant Loser  |    14 |             1 | ["Clear Winner"]   |        109 |                 165 |                  165
+ Arapahoe    | COUNTY COMMISSIONER DISTRICT 3                  | Janet Lee Cook |    27 |             1 | ["Janet Lee Cook"] |         15 |                 165 |                   46
+ Arapahoe    | COUNTY COMMISSIONER DISTRICT 3                  | Jeff Baker     |    12 |             1 | ["Janet Lee Cook"] |         15 |                 165 |                   46
+ Arapahoe    | Proposition 107 (Statutory)                     | NO             |    31 |             1 | ["NO"]             |          1 |                 165 |                   95
+ Arapahoe    | Proposition 107 (Statutory)                     | YES            |    30 |             1 | ["NO"]             |          1 |                 165 |                   95
+(6 rows)
+

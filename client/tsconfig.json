@@ -1,0 +1,45 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "corla/*": ["./src/*"],
+        },
+
+        "outDir": "./dist/",
+        "sourceMap": true,
+
+        // Strictness options
+        "allowUnreachableCode": false,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "strictNullChecks": true,
+
+        "lib": [
+            "dom",
+            "es2015.promise",
+            "es5",
+            "es2015",
+            "esnext",
+        ],
+
+        "module": "commonjs",
+        "target": "es5",
+        "jsx": "react"
+    },
+
+    "files": [
+        "./index.d.ts",
+        "./action.d.ts",
+        "./county.d.ts",
+        "./dos.d.ts",
+        "./global.d.ts",
+        "./json.d.ts",
+        "./vendor.d.ts",
+        "./node_modules/@types/webpack-env/index.d.ts"
+    ],
+
+    "include": [
+        "./src/**/*"
+    ]
+}

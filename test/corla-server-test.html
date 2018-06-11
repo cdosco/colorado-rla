@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CORLA Server Tests</title>
+</head>
+<body>
+<h2>Admin Authentication Test</h2>
+<div style="display:block">
+    <form action="http://localhost:8888/auth-admin" method="post">
+        Username: <input type="text" name="username" />
+        Password: <input type="password" name="password" />
+        Second Factor: <input type="password" name="second_factor" />
+        <input type="submit" id="buttonUpload" value="Log In"/>
+    </form>
+</div>
+<hr><h2>State Admin Authentication Test</h2>
+<div style="display:block">
+    <form action="http://localhost:8888/auth-state-admin" method="post">
+        Username: <input type="text" name="username" />
+        Password: <input type="password" name="password" />
+        Second Factor: <input type="password" name="second_factor" />
+        <input type="submit" id="buttonUpload" value="Log In"/>
+    </form>
+</div>
+<hr>
+<h2>County Admin Authentication Test</h2>
+<div style="display:block">
+    <form action="http://localhost:8888/auth-county-admin" method="post">
+        Username: <input type="text" name="username" />
+        Password: <input type="password" name="password" />
+        Second Factor: <input type="password" name="second_factor" />
+        <input type="submit" id="buttonUpload" value="Log In"/>
+    </form>
+</div>
+<hr>
+<h2>CVR Export Upload Test</h2>
+<div style="display:block">
+    <form action="http://localhost:8888/upload-cvr-export" method="post" enctype="multipart/form-data">
+        <label for="cvr_file">Select a CVR export file</label>
+        <input type="file" id="cvr_file" name="cvr_file"/>
+        County ID #: <input type="text" name="county"/>
+        Hash: <input type="text" name="hash"/>
+        <input type="submit" id="buttonUpload" value="Upload"/>
+    </form>
+</div>
+<hr>
+<h2><a href="http://localhost:8888/cvr">All CVRs Download Test</a></h2>
+<hr>
+<h2>CVRs (by County) Download Test</h2>
+<div style="display:block">
+Manually go to <tt>http://localhost:8888/cvr/county?A&B&C&...</tt>, replacing <tt>A, B, C</tt> with county identifier numbers.
+</div>
+<hr>
+<h2>Audit CVR Upload Test</h2>
+<div style="display:block">
+    <form action="http://localhost:8888/upload-audit-cvr" method="post" enctype="multipart/form-data">
+        <label for="audit_cvr">Select a file containing a single JSON audit CVR</label>
+        <input type="file" id="audit_cvr" name="audit_cvr"/>
+        <input type="submit" id="buttonUpload" value="Upload"/>
+    </form>
+</div>
+<hr>
+<h2><a href="http://localhost:8888/acvr">All Audit CVRs Download Test</a></h2>
+<hr>
+<h2>Audit CVRs (by County) Download Test</h2>
+<div style="display:block">
+Manually go to <tt>http://localhost:8888/acvr/county?A&B&C&...</tt>, replacing <tt>A, B, C</tt> with county identifier numbers.
+</div>
+<hr>
+<h2>Generate Ballots to Audit Lists</h2>
+<div style="display:block">
+    <form action="http://localhost:8888/ballots-to-audit/publish" method="post">
+        <input type="submit" id="buttonUpload" value="Generate Ballots to Audit Lists"/>
+    </form>
+</div>
+<b>Note: Must be authenticated as a state administrator to carry out this action. Also,
+there must already be a risk limit and contests to audit set, and CVRs uploaded, some
+of which cannot be done from this static page at present.</b>
+<hr>
+<h2>Ballot Manifest Upload Test</h2>
+<div style="display:block">
+    <form action="http://localhost:8888/upload-ballot-manifest" method="post" enctype="multipart/form-data">
+        <label for="bmi_file">Select a ballot manifest file</label>
+        <input type="file" id="bmi_file" name="bmi_file"/>
+        Hash: <input type="text" name="hash"/>
+        <input type="submit" id="buttonUpload" value="Upload"/>
+    </form>
+</div>
+<hr>
+<h2><a href="http://localhost:8888/ballot-manifest">All Ballot Manifest Download Test</a></h2>
+<hr>
+<h2>Ballot Manifest (by County) Download Test</h2>
+<div style="display:block">
+Manually go to <tt>http://localhost:8888/ballot-manifest/county?A&B&C&...</tt>, replacing <tt>A, B, C</tt> with county identifier numbers.
+</div>
+<hr>
+<h2><a href="http://localhost:8888/contest">All Contest Download Test</a></h2>
+<hr>
+<h2>Contest (by ID) Download Test</h2>
+<div style="display:block">
+Manually go to <tt>http://localhost:8888/contest/id/N</tt>, replacing <tt>N</tt> with the contest ID (from a downloaded CVR or ballot style).
+</div>
+<hr>
+<h2>Contest (by County) Download Test</h2>
+<div style="display:block">
+Manually go to <tt>http://localhost:8888/contest/county?A&B&C&...</tt>, replacing <tt>A, B, C</tt> with county identifier numbers.
+</div>
+<hr>
+<h2><a href="http://localhost:8888/dos-dashboard">DoS Dashboard Refresh Test</a></h2>
+<b>Note: Must be authenticated as a state administrator to carry out this action.</b>
+<hr>
+<h2><a href="http://localhost:8888/county-dashboard">County Dashboard Refresh Test</a></h2>
+<b>Note: Must be authenticated as a county administrator to carry out this action.</b>
+<hr>
+<h2>Reset Database</h2>
+<div style="display:block">
+    <form action="http://localhost:8888/reset-database" method="post">
+        <input type="submit" id="buttonUpload" value="Reset Database"/>
+    </form>
+</div>
+<b>Note: Must be authenticated as a state administrator to carry out this action.</b>
+</body>
+</html>

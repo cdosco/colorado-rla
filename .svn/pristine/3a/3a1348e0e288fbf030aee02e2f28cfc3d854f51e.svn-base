@@ -1,0 +1,163 @@
+body {
+    font-family: "Arial", sans-serif;
+}
+
+div{
+  white-space: pre-wrap;
+}
+
+.login-page {
+    margin: 0 auto;
+    width: 50%;
+}
+
+.county-root {
+    display: flex;
+    flex-direction: column;
+}
+
+.county-root .info {
+  #  display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.county-root .contest-info {
+    flex: 1;
+}
+
+.county-root .county-info {
+    flex: 1;
+}
+
+.sos-home {
+    display: flex;
+    flex-direction: column;
+}
+
+.sos-home .sos-info {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.sos-home .sos-info .contest-info {
+    flex: 1;
+}
+
+.sos-home .sos-info .county-info {
+    flex: 1;
+}
+
+.audit{
+    margin-top: 10px;	
+}
+
+.truncate {
+  width: 500px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pt-breadcrumb {
+    margin: 10px; 
+}
+
+.pt-table {
+    border-spacing: 0;
+    font-size: 16px !important;
+}
+
+.pt-file-upload-input::after {
+    background-color: #137cbd;
+    background-image: none;
+	color: #ffffff;
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 100%;
+    margin-left: -1px;
+    border-radius: 3px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    width: 70px;
+    height: 30px;
+    padding: 0 10px;
+    text-align: center;
+    line-height: 30px;
+    content: "Browse"; }
+
+	  
+  .pt-file-upload-input:hover::after {
+    box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.2), inset 0 -1px 0 rgba(16, 22, 26, 0.1);
+    background-clip: padding-box;
+    background-color: #137cbd; }	  
+	
+h2 {
+    padding: 10px;
+}
+
+h3 {
+    padding: 10px;
+}
+
+.pt-ui-text-large {
+  line-height: 1.25;
+  font-size: 16px; 
+  font-weight: bold;
+}
+
+.rla-page {
+    margin: 0 auto;
+    max-width: 800px;
+}
+
+.rla-page .pt-card {
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.rla-page table {
+    margin: 0 auto;
+}
+
+.rla-radio-group {
+    width: fit-content;
+    width: -moz-fit-content;
+    width: -webkit-fit-content;
+}
+
+.rla-contest-choice {
+    width: fit-content;
+    width: -moz-fit-content;
+    width: -webkit-fit-content;
+}
+
+.rla-county-contest-info {
+    table-layout: fixed;
+    width: 100%;
+}
+
+td.rla-county-contest-info {
+    width: 50%;
+}
+
+th.rla-county-contest-info {
+    width: 50%;
+}
+
+.rla-license-footer {
+    width: 100%;
+}
+
+.rla-license {
+    margin: 0 auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 500px;
+}
+
+.rla-file-upload-progress {
+    width: 50%;
+}
