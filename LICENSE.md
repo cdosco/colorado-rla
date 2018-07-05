@@ -6,7 +6,7 @@ Copyright (C) 2018 Colorado Department of State
 
 This work was created by modifying software created by Free & Fair (http://freeandfair.us/) under the GNU Affero General Public License version 3 pursuant to a contract with the Colorado Department of State.
 
-This work is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. 
+This work is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. 
 
 This work is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. 
 
