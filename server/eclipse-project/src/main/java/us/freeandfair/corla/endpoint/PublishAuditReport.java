@@ -10,16 +10,24 @@
  */
 
 package us.freeandfair.corla.endpoint;
-import static us.freeandfair.corla.asm.ASMEvent.DoSDashboardEvent.PUBLISH_AUDIT_REPORT_EVENT;
 
 import spark.Request;
 import spark.Response;
 
-import us.freeandfair.corla.asm.ASMEvent;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+
+import java.util.Locale;
+
+import org.apache.cxf.attachment.Rfc5987Util;
+
+import us.freeandfair.corla.controller.AuditReport;
+import us.freeandfair.corla.util.SparkHelper;
 
 /**
  * Download all of the data relevant to public auditing of a RLA.
- * 
+ *
  * @author Joseph R. Kiniry <kiniry@freeandfair.us>
  * @version 1.0.0
  */
@@ -32,7 +40,7 @@ public class PublishAuditReport extends AbstractDoSDashboardEndpoint {
   public EndpointType endpointType() {
     return EndpointType.GET;
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -48,21 +56,68 @@ public class PublishAuditReport extends AbstractDoSDashboardEndpoint {
     return AuthorizationType.STATE;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected ASMEvent endpointEvent() {
-    return PUBLISH_AUDIT_REPORT_EVENT;
+  private String capitalize(final String string) {
+    return string.substring(0,1).toUpperCase(Locale.US)
+      + string.substring(1);
   }
-  
+
+  private String fileName(final String reportType, final String extension) {
+    try {
+      return Rfc5987Util.encode(String.format("%s_Report.%s",
+                                              capitalize(reportType),
+                                              extension),
+                                "UTF-8");
+    } catch(final UnsupportedEncodingException e) {
+      return String.format("%s_Report.%s",
+                           capitalize(reportType),
+                           extension);
+    }
+ }
+
   /**
    * Download all of the data relevant to public auditing of a RLA.
    */
   @Override
-  public String endpointBody(final Request the_request,
-                         final Response the_response) {
-    ok(the_response, "Publish the audit report for the entire state-wide RLA.");
+  public String endpointBody(final Request request,
+                             final Response response)  {
+    String contentType;
+    final String contestName = request.queryParams("contestName"); // optional when reportType is *-all
+    final String reportType  = request.queryParams("reportType"); // activity/results
+
+    contentType = request.queryParams("contentType");
+    if (null == contentType) {
+      contentType = request.headers("Accept"); //header wins
+    }
+    // todo ensure reportType is present
+
+    byte[] reportBytes;
+    try {
+
+      final OutputStream os = SparkHelper.getRaw(response).getOutputStream();
+      switch (contentType) {
+      case "xlsx": case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+        reportBytes = AuditReport.generate("xlsx", reportType, contestName);
+        response.header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.header("Content-Disposition", "attachment; filename*=UTF-8''" + fileName(reportType, "xlsx"));
+        os.write(reportBytes);
+        os.close();
+        break;
+      case "zip": case "application/zip":
+        response.header("Content-Type", "application/zip");
+        response.header("Content-Disposition", "attachment; filename*=UTF-8''" + fileName(reportType, "zip"));
+        AuditReport.generateZip(os);
+        os.close();
+        break;
+      default:
+        invariantViolation(response, "Accept header or query param contentType is missing or invalid");
+        return my_endpoint_result.get();
+      }
+
+      ok(response);
+    } catch (final IOException e) {
+      serverError(response, "Unable to stream response");
+    }
+
     return my_endpoint_result.get();
   }
 }
