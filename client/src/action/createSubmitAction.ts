@@ -39,6 +39,7 @@ function createSubmitAction<S, R>(config: CreateSubmitConfig<S, R>) {
         };
 
         try {
+            console.log("Fetching " + url);
             const r = await fetch(url, init);
 
             if (!r.ok) {
@@ -49,14 +50,14 @@ function createSubmitAction<S, R>(config: CreateSubmitConfig<S, R>) {
                 if (r.status === 401) {
                     action('NOT_AUTHORIZED');
                 }
-
-                return;
+                return r;
             }
 
             const received = await r.json().catch(empty);
             const data = createData(sent, received);
 
             action(okType, data);
+            return r;
         } catch (e) {
             action(networkFailType);
 
@@ -66,6 +67,5 @@ function createSubmitAction<S, R>(config: CreateSubmitConfig<S, R>) {
 
     return submitAction;
 }
-
 
 export default createSubmitAction;

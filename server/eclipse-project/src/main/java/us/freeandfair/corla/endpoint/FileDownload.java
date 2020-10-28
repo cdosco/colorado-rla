@@ -26,6 +26,7 @@ import spark.Response;
 import us.freeandfair.corla.Main;
 import us.freeandfair.corla.model.County;
 import us.freeandfair.corla.model.UploadedFile;
+import us.freeandfair.corla.persistence.Persistence;
 import us.freeandfair.corla.util.FileHelper;
 import us.freeandfair.corla.util.SparkHelper;
 
@@ -37,11 +38,7 @@ import us.freeandfair.corla.util.SparkHelper;
  */
 @SuppressWarnings({"PMD.AtLeastOneConstructor", "PMD.ExcessiveImports"})
 public class FileDownload extends AbstractEndpoint {
-  /**
-   * The query parameter name.
-   */
-  public static final String QUERY_PARAMETER = "file_info";
-  
+
   /**
    * The download buffer size, in bytes.
    */
@@ -85,7 +82,7 @@ public class FileDownload extends AbstractEndpoint {
    */
   @Override
   public boolean validateParameters(final Request the_request) {
-    return the_request.queryParams().contains(QUERY_PARAMETER);
+    return the_request.queryParams().contains("fileId");
   }
   
   /**
@@ -97,33 +94,37 @@ public class FileDownload extends AbstractEndpoint {
     // for state authentication
     final County county = Main.authentication().authenticatedCounty(the_request);
 
+    UploadedFile uploadedFile = null;
+
     try {
-      final UploadedFile file =
-          Main.GSON.fromJson(the_request.queryParams(QUERY_PARAMETER), UploadedFile.class);
-      if (file == null) {
+      final String fileId = the_request.queryParams("fileId");
+      if (null != fileId) {
+        uploadedFile = Persistence.getByID(Long.valueOf(fileId), UploadedFile.class);
+      }
+      if (uploadedFile == null) {
         badDataContents(the_response, "nonexistent file requested");
-      } else if (county == null || county.id().equals(file.county().id())) {
+      } else if (county == null || county.id().equals(uploadedFile.county().id())) {
         the_response.type("text/csv");
         try {
           the_response.raw().setHeader("Content-Disposition", "attachment; filename=\"" + 
-                                       Rfc5987Util.encode(file.filename(), "UTF-8") + "\"");
+                                       Rfc5987Util.encode(uploadedFile.filename(), "UTF-8") + "\"");
         } catch (final UnsupportedEncodingException e) {
           serverError(the_response, "UTF-8 is unsupported (this should never happen)");
         }
         
         try (OutputStream os = SparkHelper.getRaw(the_response).getOutputStream()) {
           final int total =
-              FileHelper.bufferedCopy(file.file().getBinaryStream(), os, 
+              FileHelper.bufferedCopy(uploadedFile.file().getBinaryStream(), os,
                                       BUFFER_SIZE, MAX_DOWNLOAD_SIZE);
-          Main.LOGGER.debug("sent file " + file.filename() + " of size " + total);
+          Main.LOGGER.debug("sent file " + uploadedFile.filename() + " of size " + total);
           ok(the_response);
         } catch (final SQLException | IOException e) {
           serverError(the_response, "Unable to stream response");
         }
       } else {
         unauthorized(the_response, "county " + county.id() + " attempted to download " + 
-                                   "file " + file.filename() + " uploaded by county " + 
-                                   file.county().id());
+                                   "file " + uploadedFile.filename() + " uploaded by county " +
+                                   uploadedFile.county().id());
       }
     } catch (final JsonParseException e) {
       badDataContents(the_response, "malformed request: " + e.getMessage());

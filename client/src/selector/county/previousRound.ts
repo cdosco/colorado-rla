@@ -6,5 +6,4 @@ function previousRound(state: County.AppState): Option<Round> {
     return state.rounds[state.rounds.length - 1];
 }
 
-
 export default previousRound;

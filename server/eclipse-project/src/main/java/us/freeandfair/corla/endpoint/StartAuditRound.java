@@ -18,7 +18,7 @@ package us.freeandfair.corla.endpoint;
 
 import static us.freeandfair.corla.asm.ASMEvent.AuditBoardDashboardEvent.*;
 import static us.freeandfair.corla.asm.ASMEvent.CountyDashboardEvent.*;
-import static us.freeandfair.corla.asm.ASMEvent.DoSDashboardEvent.*;
+import static us.freeandfair.corla.asm.ASMEvent.DoSDashboardEvent.DOS_START_ROUND_EVENT;
 import static us.freeandfair.corla.asm.ASMState.DoSDashboardState.COMPLETE_AUDIT_INFO_SET;
 
 import java.math.BigDecimal;
@@ -49,7 +49,7 @@ import us.freeandfair.corla.controller.BallotSelection.Selection;
 import us.freeandfair.corla.controller.ComparisonAuditController;
 import us.freeandfair.corla.controller.ContestCounter;
 import us.freeandfair.corla.model.AuditReason;
-import us.freeandfair.corla.model.AuditStatus;
+import us.freeandfair.corla.model.AuditSelection;
 import us.freeandfair.corla.model.CastVoteRecord;
 import us.freeandfair.corla.model.ComparisonAudit;
 import us.freeandfair.corla.model.ContestResult;
@@ -366,6 +366,40 @@ public class StartAuditRound extends AbstractDoSDashboardEndpoint {
               (!isRisk)) {
             LOGGER
                 .info(String.format("[startRound: allAuditsComplete! %s County is FINISHED.]",
+                                    cdb.county().name()));
+            ASMUtilities.step(RISK_LIMIT_ACHIEVED_EVENT, AuditBoardDashboardASM.class,
+                              String.valueOf(cdb.id()));
+            countyDashboardASM.stepEvent(COUNTY_AUDIT_COMPLETE_EVENT);
+
+            ASMUtilities.save(countyDashboardASM);
+            continue;
+          }
+          // Round 2 start
+          // No discrepencies
+          // Go to next round
+          //
+          int disagreements = 0;
+          if (cdb.discrepancies().size() > 0) {
+            if (cdb.discrepancies().get(AuditSelection.AUDITED_CONTEST) != null) {
+              disagreements = cdb.discrepancies().get(AuditSelection.AUDITED_CONTEST);
+            } 
+          }
+
+          if (countyDashboardASM.currentState()
+              .equals(CountyDashboardState.COUNTY_AUDIT_UNDERWAY) &&
+              !cdb.allAuditsComplete() &&
+              (cdb.rounds().size() > 0) && (disagreements == 0)) {
+            cdb.getAudits().stream().filter(ca -> !ca.isFinished()).forEach(ca-> {
+              ca.updateAuditStatus();
+              Persistence.save(ca);
+            });
+          } // sometimes audit status is left in air... and make sure we are good
+          
+          if (countyDashboardASM.currentState()
+              .equals(CountyDashboardState.COUNTY_AUDIT_UNDERWAY) && cdb.allAuditsComplete() &&
+              (cdb.rounds().size() > 0) && (disagreements == 0)) {
+            LOGGER
+                .info(String.format("[startRound: allAuditsComplete! %s County is FINISHED. Audited Disagreements == 0]",
                                     cdb.county().name()));
             ASMUtilities.step(RISK_LIMIT_ACHIEVED_EVENT, AuditBoardDashboardASM.class,
                               String.valueOf(cdb.id()));

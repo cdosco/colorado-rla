@@ -1,45 +1,32 @@
-import * as React from 'react';
-import { match } from 'react-router-dom';
+
+import { RouteComponentProps } from 'react-router-dom';
 
 import withDOSState from 'corla/component/withDOSState';
 import withSync from 'corla/component/withSync';
 
 import ContestDetailPage from './DetailPage';
 
-
-interface ContainerProps {
-    contests: DOS.Contests;
-    match: match<any>;
+interface MatchParams {
+    contestId: string;
 }
 
-class ContestDetailContainer extends React.Component<ContainerProps> {
-    public render() {
-        const { contests } = this.props;
+interface OwnProps extends RouteComponentProps<MatchParams> {}
 
-        if (!contests) {
-            return <div />;
-        }
+function mapStateToProps(state: DOS.AppState, ownProps: OwnProps) {
+    const { contests } = state;
+    const contestId = parseInt(ownProps.match.params.contestId, 10);
 
-        const { contestId } = this.props.match.params;
-        const contest = this.props.contests[contestId];
+    const contest = contests[contestId];
 
-        if (!contest) {
-            return <div />;
-        }
-
-        return <ContestDetailPage contest={ contest } />;
+    if (!contest) {
+        return {};
     }
+
+    return { contest };
 }
-
-function select(dosState: DOS.AppState) {
-    const { contests } = dosState;
-
-    return { contests };
-}
-
 
 export default withSync(
-    withDOSState(ContestDetailContainer),
+    withDOSState(ContestDetailPage),
     'DOS_CONTEST_DETAIL_SYNC',
-    select,
+    mapStateToProps,
 );

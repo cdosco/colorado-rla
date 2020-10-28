@@ -7,8 +7,8 @@ import roundSignOff from 'corla/action/county/roundSignOff';
 
 import countyInfo from 'corla/selector/county/countyInfo';
 
-
 interface ContainerProps {
+    auditBoardIndex: number;
     countyInfo: CountyInfo;
 }
 
@@ -31,16 +31,14 @@ class SignOffFormContainer extends React.Component<ContainerProps, ContainerStat
     };
 
     public render() {
-        const { countyInfo } = this.props;
-
         const props = {
-            countyInfo,
+            countyInfo: this.props.countyInfo,
             form: this.state.form,
             formIsValid: this.formIsValid(),
             onFirstNameChange: this.onFirstNameChange,
             onLastNameChange: this.onLastNameChange,
             onTextConfirm: this.onTextConfirm,
-            submit: () => roundSignOff(this.state.form),
+            submit: () => roundSignOff(this.props.auditBoardIndex, this.state.form),
         };
 
         return <SignOffForm { ...props } />;
@@ -84,11 +82,10 @@ class SignOffFormContainer extends React.Component<ContainerProps, ContainerStat
     }
 }
 
-function select(countyState: County.AppState) {
+function mapStateToProps(countyState: County.AppState) {
     return {
         countyInfo: countyInfo(countyState),
     };
 }
 
-
-export default connect(select)(SignOffFormContainer);
+export default connect(mapStateToProps)(SignOffFormContainer);

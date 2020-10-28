@@ -39,6 +39,7 @@ import us.freeandfair.corla.model.Administrator;
 import us.freeandfair.corla.model.LogEntry;
 import us.freeandfair.corla.persistence.Persistence;
 import us.freeandfair.corla.query.LogEntryQueries;
+import us.freeandfair.corla.util.DBExceptionUtil;
 import us.freeandfair.corla.util.SuppressFBWarnings;
 
 /**
@@ -597,7 +598,7 @@ public abstract class AbstractEndpoint implements Endpoint {
         // this is an internal server error because we don't know what didn't
         // get committed
         transactionFailure(the_response, 
-                           "could not commit changes to persistent storage");
+                           DBExceptionUtil.getConstraintFailureReason(e));
       }
     } else {
       if (Persistence.canTransactionRollback()) {

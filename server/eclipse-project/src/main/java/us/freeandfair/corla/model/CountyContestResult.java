@@ -275,7 +275,16 @@ public class CountyContestResult implements PersistentEntity, Serializable {
     }
     return result;
   }
-  
+
+  /**
+   * Change a choice name as part of Canonicalization.
+   */
+  public void updateChoiceName(final String oldName,
+                               final String newName) {
+    final Integer vote_total = my_vote_totals.remove(oldName);
+    my_vote_totals.put(newName, vote_total);
+  }
+
   /**
    * Compute the pairwise margin between the specified choices.
    * If the first choice has more votes than the second, the
@@ -540,6 +549,8 @@ public class CountyContestResult implements PersistentEntity, Serializable {
     my_max_margin = Integer.MIN_VALUE;
     for (final String w : my_winners) {
       if (my_losers.isEmpty()) {
+        // this could be either uncontested or tied (I think) and it means that the
+        // ContestToAudit will have an AuditType of NOT_AUDITABLE
         my_min_margin = 0;
         my_max_margin = 0;
       } else {

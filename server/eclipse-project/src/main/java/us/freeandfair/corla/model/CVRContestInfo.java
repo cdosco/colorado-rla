@@ -60,7 +60,16 @@ public class CVRContestInfo implements Serializable {
    */
   @Column(updatable = false)
   private String my_comment;
-  
+
+  /**
+   * The countyId for fast bulk deletion. This is because of the apparent
+   * lacking feature of jpa; on delete cascade added to ddl
+   * the value is used in a query not in the code, hence the SuppressWarnings
+   */
+  @SuppressWarnings({"PMD.UnusedPrivateField","PMD.SingularField"})
+  @Column
+  private Long county_id;
+
   /**
    * The consensus value for this contest
    */
@@ -71,7 +80,7 @@ public class CVRContestInfo implements Serializable {
   /**
    * The choices for this contest.
    */
-  @Column(name = "choices", columnDefinition = "text")
+  @Column(name = "choices", columnDefinition = "character varying (255)")
   @Convert(converter = StringListConverter.class)
   private List<String> my_choices = new ArrayList<>();
 
@@ -115,7 +124,12 @@ public class CVRContestInfo implements Serializable {
   public Contest contest() {
     return my_contest;
   }
-  
+
+  /** set the county id **/
+  public void setCountyId(final Long countyId) {
+    this.county_id = countyId;
+  }
+
   /**
    * @return the comment in this record.
    */

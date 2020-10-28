@@ -2,7 +2,6 @@ import { takeLatest } from 'redux-saga/effects';
 
 import notice from 'corla/notice';
 
-
 function* selectContestsForAuditFail(): IterableIterator<void> {
     notice.danger('Unable to select contests for audit.');
     notice.danger('Please verify that you selected at least one contest for audit.');
@@ -72,6 +71,17 @@ function* publishBallotsToAuditOk(): IterableIterator<void> {
     notice.ok('The audit has started!');
 }
 
+function* standardizeContestsForAuditFail(action: any): IterableIterator<void> {
+    const { data } = action;
+    const { result } = data;
+    notice.danger(result);
+}
+
+function* standardizeChoicesForAuditFail(action: any): IterableIterator<void> {
+    const { data } = action;
+    const { result } = data;
+    notice.danger(result);
+}
 
 export default function* dosLoginSaga() {
     yield takeLatest('SELECT_CONTESTS_FOR_AUDIT_FAIL', selectContestsForAuditFail);
@@ -93,4 +103,7 @@ export default function* dosLoginSaga() {
     yield takeLatest('PUBLISH_BALLOTS_TO_AUDIT_FAIL', publishBallotsToAuditFail);
     yield takeLatest('PUBLISH_BALLOTS_TO_AUDIT_NETWORK_FAIL', publishBallotsToAuditNetworkFail);
     yield takeLatest('PUBLISH_BALLOTS_TO_AUDIT_OK', publishBallotsToAuditOk);
+
+    yield takeLatest('STANDARDIZE_CONTESTS_FOR_AUDIT_FAIL', standardizeContestsForAuditFail);
+    yield takeLatest('STANDARDIZE_CHOICES_FOR_AUDIT_FAIL', standardizeChoicesForAuditFail);
 }

@@ -4,7 +4,6 @@ import createSubmitAction from 'corla/action/createSubmitAction';
 
 import { format } from 'corla/adapter/contestsForAudit';
 
-
 const url = endpoint('select-contests');
 
 const selectContestsForAudit = createSubmitAction({
@@ -14,7 +13,6 @@ const selectContestsForAudit = createSubmitAction({
     sendType: 'SELECT_CONTESTS_FOR_AUDIT_SEND',
     url,
 });
-
 
 export default (data: DOS.Form.SelectContests.FormData) =>
     selectContestsForAudit(format(data));

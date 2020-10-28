@@ -8,7 +8,6 @@ import {
 
 import session from 'corla/session';
 
-
 interface LoginRouteProps extends RouteProps {
     page: React.ComponentClass;
 }
@@ -32,6 +31,5 @@ function LoginRoute(props: LoginRouteProps) {
 
     return <Route render={ render } { ...rest } />;
 }
-
 
 export default LoginRoute;

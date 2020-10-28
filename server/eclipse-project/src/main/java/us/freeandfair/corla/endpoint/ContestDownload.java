@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Level;
+
 import com.google.gson.stream.JsonWriter;
 
 import spark.Request;
@@ -63,7 +65,15 @@ public class ContestDownload extends AbstractEndpoint {
   public AuthorizationType requiredAuthorization() {
     return AuthorizationType.EITHER;
   }
-  
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Level logLevel() {
+    return Level.DEBUG;
+  }
+
   /**
    * {@inheritDoc}
    */

@@ -5,7 +5,6 @@ import { empty } from 'corla/util';
 const importUrl = endpoint('import-ballot-manifest');
 const uploadUrl = endpoint('upload-file');
 
-
 function createFormData(file: Blob, hash: string): FormData {
     const formData = new FormData();
 
@@ -77,6 +76,5 @@ async function uploadBallotManifest(countyId: number, file: Blob, hash: string) 
     }
 
 }
-
 
 export default uploadBallotManifest;

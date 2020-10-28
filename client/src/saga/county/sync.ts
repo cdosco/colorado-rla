@@ -1,6 +1,4 @@
-import * as _ from 'lodash';
-
-import { all, select, takeLatest } from 'redux-saga/effects';
+import { all, call, select, takeLatest } from 'redux-saga/effects';
 
 import * as config from 'corla/config';
 
@@ -8,13 +6,27 @@ import createPollSaga from 'corla/saga/createPollSaga';
 
 import dashboardRefresh from 'corla/action/county/dashboardRefresh';
 import fetchAuditBoardASMState from 'corla/action/county/fetchAuditBoardASMState';
-import fetchContests from 'corla/action/county/fetchContests';
 import fetchCountyASMState from 'corla/action/county/fetchCountyASMState';
 
 import cvrExportUploadingSelector from 'corla/selector/county/cvrExportUploading';
 
-
 const COUNTY_POLL_DELAY = config.pollDelay;
+
+function* selectPollDelay() {
+    const countyState = yield select();
+
+    const isUploading = cvrExportUploadingSelector(countyState);
+
+    return isUploading ? 5000 : COUNTY_POLL_DELAY;
+}
+
+function* refreshCountyState() {
+    yield all([
+        call(dashboardRefresh),
+        call(fetchAuditBoardASMState),
+        call(fetchCountyASMState),
+    ]);
+}
 
 function* auditPoll() {
     const countyState = yield select();
@@ -24,10 +36,12 @@ function* auditPoll() {
         || asmState === 'WAITING_FOR_ROUND_START_NO_AUDIT_BOARD';
 
     if (shouldSync) {
-        dashboardRefresh();
-        fetchAuditBoardASMState();
-        fetchCountyASMState();
+        yield call(refreshCountyState);
     }
+}
+
+function* dashboardPoll() {
+    yield call(refreshCountyState);
 }
 
 const auditPollSaga = createPollSaga(
@@ -38,33 +52,7 @@ const auditPollSaga = createPollSaga(
 );
 
 function* boardSignInSaga() {
-    yield takeLatest('COUNTY_BOARD_SIGN_IN_SYNC', () => {
-        dashboardRefresh();
-        fetchAuditBoardASMState();
-        fetchCountyASMState();
-    });
-}
-
-function* dashboardPoll() {
-    dashboardRefresh();
-    fetchAuditBoardASMState();
-    fetchCountyASMState();
-
-    const countyState = yield select();
-
-    if (countyState && !_.isNil(countyState.id)) {
-        fetchContests(countyState.id);
-    }
-}
-
-function* selectPollDelay() {
-    const countyState = yield select();
-
-    const isUploading = cvrExportUploadingSelector(countyState);
-
-    const delay = isUploading ? 5000 : COUNTY_POLL_DELAY;
-
-    return delay;
+    yield takeLatest('COUNTY_BOARD_SIGN_IN_SYNC', refreshCountyState);
 }
 
 const dashboardPollSaga = createPollSaga(
@@ -74,11 +62,10 @@ const dashboardPollSaga = createPollSaga(
     selectPollDelay,
 );
 
-
 export default function* pollSaga() {
     yield all([
-        auditPollSaga(),
-        boardSignInSaga(),
-        dashboardPollSaga(),
+        call(auditPollSaga),
+        call(boardSignInSaga),
+        call(dashboardPollSaga),
     ]);
 }

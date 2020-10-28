@@ -1,16 +1,17 @@
 import * as React from 'react';
+import IdleDialog from '../../IdleDialog';
 
-import CountyNav from '../Nav';
+import { Button, Card, Intent } from '@blueprintjs/core';
+
+import auditBoardSignIn from 'corla/action/county/auditBoardSignIn';
+import CountyLayout from 'corla/component/CountyLayout';
+import isValidAuditBoard from 'corla/selector/county/isValidAuditBoard';
 
 import SignInForm from './SignInForm';
 
-import auditBoardSignIn from 'corla/action/county/auditBoardSignIn';
-
-import isValidAuditBoard from 'corla/selector/county/isValidAuditBoard';
-
-
 interface PageProps {
-    auditBoard: AuditBoard;
+    auditBoardIndex: number;
+    auditBoardStartOrContinue: () => void;
     countyName: string;
 }
 
@@ -35,26 +36,32 @@ class AuditBoardSignInPage extends React.Component<PageProps, PageState> {
     };
 
     public render() {
-        const { auditBoard, countyName } = this.props;
+        const {
+            auditBoardIndex,
+            auditBoardStartOrContinue,
+            countyName,
+        } = this.props;
 
-        if (!auditBoard) {
-            return <div />;
-        }
-
-        const submit = () => auditBoardSignIn(this.state.form);
+        const submit = () => {
+            auditBoardSignIn(auditBoardIndex, this.state.form);
+            auditBoardStartOrContinue();
+        };
 
         const disableButton = !isValidAuditBoard(this.state.form);
 
-        return (
+        const main =
             <div>
-                <CountyNav />
+                <IdleDialog />
                 <div>
-                    <h2>Audit Board</h2>
-                    <div className='pt-card'>
-                        <h5>Enter the full names and party affiliations of each member of
-                        the { countyName } County Audit Board who will be conducting this
-                        audit today:</h5>
-                    </div>
+                    <h2>Audit Board { auditBoardIndex + 1 }</h2>
+                    <Card>
+                        <span className='pt-ui-text-large font-weight-bold'>
+                            Enter the full names and party affiliations of each
+                            member of the { countyName } County Audit Board
+                            { ' ' + (auditBoardIndex + 1) } who will be
+                            conducting this audit today.
+                         </span>
+                    </Card>
                 </div>
                 <SignInForm
                     elector={ this.state.form[0] }
@@ -70,14 +77,14 @@ class AuditBoardSignInPage extends React.Component<PageProps, PageState> {
                     onPartyChange={ this.onPartyChange(1) }
                     onTextConfirm={ this.onTextConfirm }
                 />
-                <button
-                    className='pt-button pt-intent-primary'
-                    disabled={ disableButton }
-                    onClick={ submit }>
+                <Button disabled={ disableButton }
+                        intent={ Intent.PRIMARY }
+                        onClick={ submit }>
                     Sign In
-                </button>
-            </div>
-        );
+                </Button>
+            </div>;
+
+        return <CountyLayout main={ main } />;
     }
 
     private onTextConfirm = () => {
@@ -117,6 +124,5 @@ class AuditBoardSignInPage extends React.Component<PageProps, PageState> {
         this.setState(s);
     }
 }
-
 
 export default AuditBoardSignInPage;

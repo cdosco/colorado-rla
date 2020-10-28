@@ -2,7 +2,6 @@ import { endpoint } from 'corla/config';
 
 import createFetchAction from 'corla/action/createFetchAction';
 
-
 export default (id: number) => {
     const e = endpoint('cvr/id');
     const url = `${e}/${id}`;

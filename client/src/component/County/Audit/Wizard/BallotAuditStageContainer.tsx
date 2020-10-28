@@ -5,39 +5,42 @@ import BallotAuditStage from './BallotAuditStage';
 
 import action from 'corla/action';
 
-import ballotNotFound from 'corla/action/county/ballotNotFound';
+interface StateProps {
+    auditBoardIndex: number;
+    comment?: string;
+    currentBallot?: County.CurrentBallot;
+    isReAuditing: boolean;
+    updateBallotMarks: OnClick;
+}
 
-import currentBallotNumber from 'corla/selector/county/currentBallotNumber';
-
-
-interface ContainerProps {
+interface OwnProps {
     countyState: County.AppState;
-    currentBallot: County.CurrentBallot;
-    currentBallotNumber: number;
+    currentBallotNumber?: number;
+    reviewingBallotId?: number;
+    totalBallotsForBoard?: number;
     nextStage: OnClick;
     prevStage: OnClick;
 }
 
-class BallotAuditStageContainer extends React.Component<ContainerProps> {
-    public render() {
-        const props = {
-            ...this.props,
-            updateBallotMarks: (data: any) => action('UPDATE_ACVR_FORM', data),
-        };
+type Props = StateProps & OwnProps;
 
-        return <BallotAuditStage { ...props } />;
-    }
-}
+const Component = (props: Props) => <BallotAuditStage { ...props } />;
 
-function select(countyState: County.AppState) {
+const mapStateToProps = (countyState: County.AppState): StateProps => {
     const { currentBallot } = countyState;
 
+    const comment = countyState.finalReview.comment;
+
+    const updateBallotMarks = (data: any) =>
+        action('UPDATE_ACVR_FORM', data);
+
     return {
-        countyState,
+        auditBoardIndex: countyState.auditBoardIndex || 0,
+        comment,
         currentBallot,
-        currentBallotNumber: currentBallotNumber(countyState),
+        isReAuditing: !!comment,
+        updateBallotMarks,
     };
-}
+};
 
-
-export default connect(select)(BallotAuditStageContainer);
+export default connect(mapStateToProps)(Component);

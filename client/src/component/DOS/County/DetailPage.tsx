@@ -2,34 +2,22 @@ import * as React from 'react';
 
 import * as _ from 'lodash';
 
-import { formatCountyASMState } from 'corla/format';
+import { Breadcrumb, NonIdealState } from '@blueprintjs/core';
 
+import DOSLayout from 'corla/component/DOSLayout';
 import FileDownloadButtons from 'corla/component/FileDownloadButtons';
-
-import Nav from '../Nav';
-
+import { formatCountyASMState } from 'corla/format';
+import IdleDialog from '../../IdleDialog';
 
 interface BreadcrumbProps {
     county: CountyInfo;
 }
 
-const Breadcrumb = ({ county }: BreadcrumbProps) => (
-    <ul className='pt-breadcrumbs'>
-        <li>
-            <a className='pt-breadcrumb pt-disabled' href='/sos'>
-                SoS
-            </a>
-        </li>
-        <li>
-            <a className='pt-breadcrumb' href='/sos/county'>
-                County
-            </a>
-        </li>
-        <li>
-            <a className='pt-breadcrumb pt-breadcrumb-current'>
-                { county.name }
-            </a>
-        </li>
+const Breadcrumbs = ({ county }: BreadcrumbProps) => (
+    <ul className='pt-breadcrumbs mb-default'>
+        <li><Breadcrumb text='SoS' href='/sos' /></li>
+        <li><Breadcrumb text='Counties' href='/sos/county' /></li>
+        <li><Breadcrumb className='pt-breadcrumb-current' text={ county.name } /></li>
     </ul>
 );
 
@@ -39,30 +27,37 @@ function formatMember(member: AuditBoardMember): string {
     return `${firstName} ${lastName} (${party})`;
 }
 
-interface AuditBoardProps {
-    auditBoard: AuditBoardStatus;
+function formatAuditBoardRow(board: AuditBoardStatus) {
+    return (
+        <tr>
+            <td>{ formatMember(board.members[0]) }</td>
+            <td>{ formatMember(board.members[1]) }</td>
+            <td>{ `${board.signIn}` }</td>
+        </tr>
+    );
 }
 
-const AuditBoard = (props: AuditBoardProps) => {
-    const { auditBoard } = props;
+interface AuditBoardsProps {
+    auditBoards: AuditBoards;
+}
+
+const AuditBoards = (props: AuditBoardsProps) => {
+    const { auditBoards } = props;
 
     return (
-        <div className='pt-card'>
-            <h3>Audit Board</h3>
-            <table className='pt-table pt-bordered pt-condensed'>
+        <div className='mt-default'>
+             <IdleDialog />
+            <h3>Audit boards</h3>
+            <table className='pt-html-table pt-html-table-striped rla-table'>
+                <thead>
+                    <tr>
+                        <th>Board member #1</th>
+                        <th>Board member #2</th>
+                        <th>Sign-in time</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    <tr>
-                        <td><strong>Board Member #1:</strong></td>
-                        <td>{ formatMember(auditBoard.members[0]) }</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Board Member #2:</strong></td>
-                        <td>{ formatMember(auditBoard.members[1]) }</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Sign-in Time:</strong></td>
-                        <td>{ `${auditBoard.signIn}` }</td>
-                    </tr>
+                    { _.map(auditBoards, formatAuditBoardRow) }
                 </tbody>
             </table>
         </div>
@@ -71,11 +66,10 @@ const AuditBoard = (props: AuditBoardProps) => {
 
 const NoAuditBoard = () => {
     return (
-        <div className='pt-card'>
-            <h3>Audit Board</h3>
-            <div className='pt-card'>
-                Audit Board not signed in.
-            </div>
+        <div className='mt-default'>
+            <h3>Audit boards</h3>
+            <NonIdealState title='Audit boards are not signed in.'
+                           visual='people' />
         </div>
     );
 };
@@ -87,49 +81,46 @@ interface DetailsProps {
 
 const CountyDetails = (props: DetailsProps) => {
     const { county, status } = props;
-    const { auditBoard } = status;
+    const { auditBoards } = status;
+	
+console.log('----------------------------------------');
+console.log(status);
 
     const countyState = formatCountyASMState(status.asmState);
     const submitted = status.auditedBallotCount;
 
+
+
     const auditedCount = _.get(status, 'discrepancyCount.audited') || '—';
     const unauditedCount = _.get(status, 'discrepancyCount.unaudited') || '—';
 
-
-    const auditBoardSection = auditBoard
-                            ? <AuditBoard auditBoard={ auditBoard } />
+    const auditBoardSection = auditBoards
+                            ? <AuditBoards auditBoards={ auditBoards } />
                             : <NoAuditBoard />;
 
     return (
-        <div className='pt-card'>
-            <div className='pt-card'>
-                <h3>County Info</h3>
-                <table className='pt-table pt-bordered pt-condensed'>
-                    <tbody>
-                        <tr>
-                            <td><strong>Name:</strong></td>
-                            <td>{ county.name }</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Status:</strong></td>
-                            <td>{ countyState }</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Ballots Submitted:</strong></td>
-                            <td>{ submitted }</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Audited Contest Discrepancies:</strong></td>
-                            <td>{ auditedCount }</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Non-audited Contest Discrepancies:</strong></td>
-                            <td>{ unauditedCount }</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <FileDownloadButtons status={ status } />
+        <div>
+            <table className='pt-html-table pt-html-table-striped rla-table'>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Audited discrepancies</th>
+                        <th>Non-audited discrepancies</th>
+                        <th>Submitted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td className='ellipsize'>{ county.name }</td>
+                        <td className='ellipsize'>{ countyState }</td>
+                        <td>{ auditedCount }</td>
+                        <td>{ unauditedCount }</td>
+                        <td>{ submitted }</td>
+                    </tr>
+                </tbody>
+            </table>
+            <FileDownloadButtons status={ status } allowDelete={ status.asmState !== 'COUNTY_AUDIT_UNDERWAY' } />
             { auditBoardSection }
         </div>
     );
@@ -143,15 +134,14 @@ interface PageProps {
 const CountyDetailPage = (props: PageProps) => {
     const { county, status } = props;
 
-    return (
+    const main =
         <div>
-            <Nav />
-            <Breadcrumb county={ county } />
-            <h3>{ county.name } Name</h3>
+            <Breadcrumbs county={ county } />
+            <h3 className='mt-default'>{ county.name } County Info</h3>
             <CountyDetails county={ county } status={ status } />
-        </div>
-    );
-};
+        </div>;
 
+    return <DOSLayout main={ main } />;
+};
 
 export default CountyDetailPage;

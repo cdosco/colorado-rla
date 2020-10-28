@@ -1,6 +1,3 @@
-import * as _ from 'lodash';
-
-
 export default function fetchCvrsToAuditOk(
     state: County.AppState,
     action: Action.FetchCvrsToAuditOk,

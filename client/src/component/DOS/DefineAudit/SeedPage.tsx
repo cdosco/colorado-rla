@@ -1,100 +1,80 @@
 import * as React from 'react';
+import IdleDialog from '../../IdleDialog';
 
-import Nav from '../Nav';
+import { Breadcrumb, Button, Intent } from '@blueprintjs/core';
+
+import DOSLayout from 'corla/component/DOSLayout';
 
 import SeedForm from './SeedForm';
 
-import * as corlaDate from 'corla/date';
-
-
-const Breadcrumb = () => (
-    <ul className='pt-breadcrumbs'>
-        <li>
-            <a className='pt-breadcrumb' href='/sos'>
-                SoS
-            </a>
-        </li>
-        <li>
-            <a className='pt-breadcrumb' href='/sos/audit'>
-                Audit Admin
-            </a>
-        </li>
-        <li>
-            <a className='pt-breadcrumb pt-breadcrumb-current'>
-                Seed
-            </a>
-        </li>
+const Breadcrumbs = () => (
+    <ul className='pt-breadcrumbs mb-default'>
+        <li><Breadcrumb href='/sos' text='SoS' />></li>
+        <li><Breadcrumb href='/sos/audit' text='Audit Admin' /></li>
+        <li><Breadcrumb className='pt-breadcrumb-current' text='Seed' /></li>
     </ul>
 );
 
 interface PageProps {
     back: OnClick;
     nextPage: OnClick;
-    publicMeetingDate: Date;
+    formattedPublicMeetingDate: string;
     seed: string;
     uploadRandomSeed: OnClick;
 }
 
-const AuditSeedPage = (props: PageProps) => {
-    const { back, nextPage, publicMeetingDate, seed, uploadRandomSeed } = props;
+class AuditSeedPage extends React.Component<PageProps> {
+    public state: any;
 
-    const forms: DOS.Form.Seed.Ref = {};
+    constructor(props: PageProps) {
+        super(props);
 
-    const onSaveAndNext = () => {
-        if (forms.seedForm) {
-            uploadRandomSeed(forms.seedForm.seed);
-        }
+        this.state = {
+            form: { seed: props.seed },
+            formValid: false,
+        };
+    }
 
-        nextPage();
-    };
+    public setValid(valid: boolean)  {
+        this.setState({ formValid: valid });
+    }
 
-    const setSeedDiv = (
-           <div className='pt-card'>
-                <table className='pt-table'>
-                    <tbody>
-                        <tr>
-                            <td><strong>Random seed: </strong></td>
-                            <td>{ seed }</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>        
-    );
-
-    const dynamicSeedForm = <SeedForm forms={ forms } />;
-    const seedForm = seed ? setSeedDiv : dynamicSeedForm;
-
-    const formattedPublicMeetingDate = corlaDate.format(publicMeetingDate);
-
-    return (
-        <div>
-            <Nav />
-            <Breadcrumb />
-            <div className='pt-card'>
-                <h3>Audit Definition - Enter Random Seed</h3>
-                <div className='pt-card'>
-                    Enter the random seed generated from the public meeting on { formattedPublicMeetingDate }.
-                </div>
-                <div className='pt-card'>
-                    <span className='pt-icon pt-intent-warning pt-icon-warning-sign' />
-                    <span> </span>
-                    <strong>Once saved, this random seed cannot be modified.</strong>
-                </div>
-                <div className='pt-card'>
-                    { seedForm }
-                </div>
-            </div>
+    public render() {
+        const main =
             <div>
-                <button onClick={ back } className='pt-button pt-intent-primary pt-breadcrumb'>
-                    Back
-                </button>
-                <button onClick={ onSaveAndNext } className='pt-button pt-intent-primary pt-breadcrumb'>
-                    Save & Next
-                </button>
-            </div>
-        </div>
-    );
-};
+                <IdleDialog />
+                <Breadcrumbs />
+                <div className='mb-default'>
+                    <h3>Audit Definition - Enter Random Seed</h3>
+                    <div>
+                        Enter the random seed generated from the public meeting
+                        on { this.props.formattedPublicMeetingDate }.
+                    </div>
+                    <hr />
+                    <div>
+                        <SeedForm initSeed={ this.state.form.seed }
+                                  updateForm={ (seed: string) => { this.state.form.seed = seed; } }
+                                  setValid={ (v: boolean) => { this.setValid(v); } } />
+                    </div>
+                </div>
+                <div>
+                    <Button onClick={ this.props.back }>Back</Button>
+                    <Button className='ml-default'
+                            intent={ Intent.PRIMARY }
+                            disabled={!this.state.formValid}
+                            onClick={ this.onSaveAndNext }>
+                        Save & Next
+                    </Button>
+                </div>
+            </div>;
 
+        return <DOSLayout main={ main } />;
+    }
+
+    private onSaveAndNext = () => {
+        this.props.uploadRandomSeed(this.state.form.seed);
+        this.props.nextPage();
+    }
+}
 
 export default AuditSeedPage;

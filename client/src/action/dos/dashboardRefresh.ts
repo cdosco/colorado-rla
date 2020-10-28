@@ -2,9 +2,7 @@ import { endpoint } from 'corla/config';
 
 import createFetchAction from 'corla/action/createFetchAction';
 
-
 const url = endpoint('dos-dashboard');
-
 
 export default createFetchAction({
     failType: 'DOS_DASHBOARD_REFRESH_FAIL',

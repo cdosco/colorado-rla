@@ -2,7 +2,6 @@ import { merge } from 'lodash';
 
 import { parse } from 'corla/adapter/dosDashboardRefresh';
 
-
 export default function dashboardRefreshOk(
     state: DOS.AppState,
     action: Action.DOSDashboardRefreshOk,

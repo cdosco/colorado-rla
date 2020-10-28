@@ -1,8 +1,4 @@
-import * as _ from 'lodash';
-
 import activeCounties from './activeCounties';
-import auditStarted from './auditStarted';
-
 
 function currentRound(state: DOS.AppState): number {
     const counties = activeCounties(state);
@@ -20,6 +16,5 @@ function currentRound(state: DOS.AppState): number {
 
     return roundNumber;
 }
-
 
 export default currentRound;

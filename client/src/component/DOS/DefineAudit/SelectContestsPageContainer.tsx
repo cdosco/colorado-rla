@@ -9,7 +9,7 @@ import withPoll from 'corla/component/withPoll';
 import SelectContestsPage from './SelectContestsPage';
 
 import selectContestsForAudit from 'corla/action/dos/selectContestsForAudit';
-
+import resetAudit from 'corla/action/dos/resetAudit';
 
 interface ContainerProps {
     auditedContests: DOS.AuditedContests;
@@ -40,10 +40,13 @@ class SelectContestsPageContainer extends React.Component<ContainerProps> {
         if (dosState.asm === 'DOS_AUDIT_ONGOING') {
             return <Redirect to='/sos' />;
         }
-
+        const previousPage = async() => {
+			      await resetAudit();
+            history.push('/sos/audit');
+        };
         const props = {
             auditedContests,
-            back: () => history.push('/sos/audit'),
+            back: previousPage,
             contests,
             isAuditable,
             nextPage: () => history.push('/sos/audit/seed'),
@@ -54,7 +57,7 @@ class SelectContestsPageContainer extends React.Component<ContainerProps> {
     }
 }
 
-function select(dosState: DOS.AppState) {
+function mapStateToProps(dosState: DOS.AppState) {
     const isAuditable = (contestId: number): boolean => {
         if (!dosState.auditTypes) { return false; }
 
@@ -71,10 +74,9 @@ function select(dosState: DOS.AppState) {
     };
 }
 
-
 export default withPoll(
     withDOSState(SelectContestsPageContainer),
     'DOS_SELECT_CONTESTS_POLL_START',
     'DOS_SELECT_CONTESTS_POLL_STOP',
-    select,
+    mapStateToProps,
 );

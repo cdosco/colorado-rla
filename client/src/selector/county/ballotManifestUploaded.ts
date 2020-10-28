@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
 
-
 const UPLOADED_STATES = [
     'BALLOT_MANIFEST_OK',
     'BALLOT_MANIFEST_OK_AND_CVRS_IMPORTING',
@@ -12,6 +11,5 @@ const UPLOADED_STATES = [
 function ballotManifestUploaded(state: County.AppState): boolean {
     return _.includes(UPLOADED_STATES, state.asm.county);
 }
-
 
 export default ballotManifestUploaded;

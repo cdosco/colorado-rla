@@ -1,10 +1,6 @@
-import * as _ from 'lodash';
-
-
 function parse(data: any): AuditBoardASMState {
     return data.current_state;
 }
-
 
 export default function fetchAuditBoardASMStateOk(
     state: County.AppState,

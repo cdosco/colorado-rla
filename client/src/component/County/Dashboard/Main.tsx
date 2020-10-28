@@ -1,4 +1,14 @@
+import * as _ from 'lodash';
+
 import * as React from 'react';
+
+import { History } from 'history';
+
+import { Button, Callout, Intent } from '@blueprintjs/core';
+
+import action from 'corla/action';
+
+import AuditBoardNumberSelector from 'corla/component/County/Dashboard/AuditBoardNumberSelector';
 
 import FileUploadContainer from './FileUploadContainer';
 
@@ -8,77 +18,98 @@ import fetchReport from 'corla/action/county/fetchReport';
 
 import FileDownloadButtons from 'corla/component/FileDownloadButtons';
 
-
-interface AuditBoardInfoProps {
-    signedIn: boolean;
+interface AuditBoardButtonsProps {
+    auditBoardCount: number;
+    auditBoards: object;
+    history: History;
+    isShown: boolean;
 }
 
-const AuditBoardInfo = (props: AuditBoardInfoProps) => {
-    const { signedIn } = props;
+const AuditBoardButtons = (props: AuditBoardButtonsProps) => {
+    const { auditBoardCount, auditBoards, history, isShown } = props;
 
-    const icon = signedIn
-               ? <span className='pt-icon pt-intent-success pt-icon-tick-circle' />
-               : <span className='pt-icon pt-intent-danger pt-icon-error' />;
+    if (!isShown) {
+        return null;
+    }
 
-    const text = signedIn ? 'signed in' : 'not signed in';
+    const handleButtonClick = (e: any, boardIndex: number, hasBoard: boolean) => {
+        e.preventDefault();
+
+        let canRedirect = true;
+
+        if (hasBoard) {
+          const message = `Audit board ${boardIndex + 1} is already signed in.` +
+                          ' Are you sure you want to proceed?';
+          canRedirect = confirm(message);
+        }
+
+        if (canRedirect) {
+            action('SET_AUDIT_BOARD', { auditBoardIndex: boardIndex });
+            history.push('/county/board/' + boardIndex);
+        }
+    };
+
+    const boardButton = (boardIndex: number, hasBoard: boolean) => {
+        const buttonIntent = hasBoard ? Intent.WARNING : Intent.PRIMARY;
+
+        return (
+            <Button icon='people'
+                    intent={ buttonIntent }
+                    key={ boardIndex.toString() }
+                    onClick={ (e: any) => handleButtonClick(e, boardIndex, hasBoard) }>
+                Audit Board { boardIndex + 1 }
+            </Button>
+        );
+    };
+
+    const buttons = [];
+    for (let i = 0; i < auditBoardCount; i++) {
+        buttons.push(boardButton(i, _.has(auditBoards, i)));
+    }
 
     return (
-        <div className='pt-card'>
-            <span>{ icon } </span>
-            Audit board is <strong>{ text }.</strong>
+        <div className='mt-default'>
+            <h5 className='pt-ui-text-large font-weight-bold'>Sign in to an audit board</h5>
+            <div className='pt-button-group pt-large rla-spaced'>{ buttons }</div>
         </div>
     );
 };
 
 interface MainProps {
-    auditBoardSignedIn: boolean;
-    auditButtonDisabled: boolean;
+    auditBoardButtonDisabled: boolean;
     auditComplete: boolean;
     auditStarted: boolean;
-    boardSignIn: OnClick;
     canRenderReport: boolean;
     countyState: County.AppState;
     currentRoundNumber: number;
+    history: History;
     name: string;
-    signInButtonDisabled: boolean;
-    startAudit: OnClick;
 }
 
 const Main = (props: MainProps) => {
     const {
-        auditBoardSignedIn,
-        auditButtonDisabled,
+        auditBoardButtonDisabled,
         auditComplete,
         auditStarted,
-        boardSignIn,
         canRenderReport,
         countyState,
         currentRoundNumber,
+        history,
         name,
-        signInButtonDisabled,
-        startAudit,
     } = props;
 
-    let directions = "Upload the ballot manifest and cast voter records (CVR) files. These need to be CSV files. \n\nAfter uploading the files wait for an email from the Department of State saying that you can continue the audit.";
+    let directions = 'Upload the ballot manifest and cast vote record (CVR) files. These need to be CSV files.'
+                   + '\n\nAfter uploading the files wait for an email from the Department of State saying that you can'
+                   + ' continue the audit.';
 
-    if (auditBoardSignedIn) {
-        if (auditButtonDisabled) {
-            directions = 'Wait for the audit to start.';
-        } else {
-            if (currentRoundNumber) {
-                directions = `You can start round ${currentRoundNumber} of the audit.`;
-            } else {
-                directions = 'You have completed the round. More ballots need to be audited. Wait for the next round to start.';
-            }
-        }
-    } else {
-        if (!signInButtonDisabled) {
-            directions = 'The Department of State has defined the audit and your list of ballots is now available for download on this page. The audit board must sign in to advance to the audit.';
-        }
-    }
-
-    if (auditComplete) {
-        directions = 'You have successfully completed the Risk-Limiting Audit! Print all pages of your final audit report. Have the judges and county clerk sign the last page of the report and email it to RLA@sos.state.co.us. You can now proceed to canvass!';
+    if (!auditBoardButtonDisabled && !currentRoundNumber && !auditComplete) {
+        directions = 'Please wait for the Department of State to proceed with the audit.';
+    } else if (currentRoundNumber && !auditComplete) {
+        directions = `You may now perform round ${currentRoundNumber} of the audit.`;
+    } else if (auditComplete) {
+        directions = 'You have successfully completed the Risk-Limiting Audit! Print all pages of your final audit'
+            + ' report. Have the judges and county clerk sign the last page of the report and email it to'
+            + ' RLA@sos.state.co.us. You can now proceed to canvass!';
     }
 
     const fileUploadContainer = auditStarted
@@ -86,7 +117,7 @@ const Main = (props: MainProps) => {
                               : <FileUploadContainer />;
 
     const fileDownloadButtons = auditStarted
-                              ? <FileDownloadButtons status={ countyState } />
+                              ? <FileDownloadButtons status={ countyState } allowDelete={ false } />
                               : <div />;
 
     const reportType = auditComplete
@@ -96,55 +127,46 @@ const Main = (props: MainProps) => {
     const downloadCsv = () => downloadCvrsToAuditCsv(currentRoundNumber);
 
     return (
-        <div className='county-main pt-card'>
-            <h1>Hello, { name } County!</h1>
-            <div>
-                <div className='pt-card'><h3>{ directions }</h3></div>
-                { fileUploadContainer }
-                { fileDownloadButtons }
-                <div className='pt-card'>
-                    <div className='pt-ui-text-large'>{ reportType} audit report (CSV)</div>
-                    <button
-                        className='pt-button  pt-intent-primary'
-                        disabled={ !canRenderReport }
-                        onClick={ fetchReport }>
-                        Download
-                    </button>
-                </div>
-                <div className='pt-card'>
-                    <div className='pt-ui-text-large'>List of ballots to audit (CSV)</div>
-                    <button
-                        className='pt-button  pt-intent-primary'
-                        disabled={ !canRenderReport }
-                        onClick={ downloadCsv }>
-                        Download
-                    </button>
-                </div>
-                <div>
-                  <AuditBoardInfo signedIn={ auditBoardSignedIn } />                    
-                  <button
-                      className='pt-button pt-intent-primary audit'
-                      disabled={ signInButtonDisabled }
-                      onClick={ boardSignIn }>
-                      <span className='pt-icon-standard pt-icon-people' />
-                      <span> </span>
-                      Audit Board
-                  </button>
-                  <br/>
-                  <p/>
-                  <button
-                      className='pt-button pt-intent-primary audit'
-                      disabled={ auditButtonDisabled }
-                      onClick={ startAudit }>
-                      <span className='pt-icon-standard pt-icon-eye-open' />
-                      <span> </span>
-                      Start Audit
-                  </button>
-                </div>
+        <div>
+            <h1 className='mt-default mb-default'>Hello, { name } County!</h1>
+            <div className='mb-default'>
+                <Callout icon='info-sign'>
+                    <span className='font-weight-bold pt-ui-text-large'>{ directions }</span>
+                </Callout>
             </div>
+            <hr />
+            { fileUploadContainer }
+            { fileDownloadButtons }
+            <div>
+                <h4 className='form-container-heading'>{ reportType } audit report (CSV)</h4>
+                <button
+                    className='pt-button  pt-intent-primary'
+                    disabled={ !canRenderReport }
+                    onClick={ fetchReport }>
+                    Download
+                </button>
+                <hr />
+            </div>
+            <div className='mt-default'>
+                <h4 className='form-container-heading'>List of ballots to audit (CSV)</h4>
+                <button
+                    className='pt-button pt-intent-primary'
+                    disabled={ typeof countyState.auditBoardCount !== 'number' }
+                    onClick={ downloadCsv }>
+                    Download
+                </button>
+            </div>
+            <AuditBoardNumberSelector auditBoardCount={ countyState.auditBoardCount || 1 }
+                                      numberOfBallotsToAudit={ countyState.ballotsRemainingInRound }
+                                      isShown={ !auditBoardButtonDisabled && !!currentRoundNumber }
+                                      isEnabled={ !countyState.auditBoardCount } />
+            <AuditBoardButtons auditBoardCount={ countyState.auditBoardCount || 1 }
+                               auditBoards={ countyState.auditBoards }
+                               history={ history }
+                               isShown={ typeof countyState.auditBoardCount === 'number'
+                                         && !!currentRoundNumber } />
         </div>
     );
 };
-
 
 export default Main;

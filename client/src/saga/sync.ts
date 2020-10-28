@@ -1,7 +1,4 @@
-import {
-    put,
-    takeLatest,
-} from 'redux-saga/effects';
+import { all, call, takeLatest } from 'redux-saga/effects';
 
 import countyDashboardRefresh from 'corla/action/county/dashboardRefresh';
 import fetchAuditBoardASMState from 'corla/action/county/fetchAuditBoardASMState';
@@ -10,26 +7,29 @@ import fetchCountyASMState from 'corla/action/county/fetchCountyASMState';
 import dosDashboardRefresh from 'corla/action/dos/dashboardRefresh';
 import dosFetchContests from 'corla/action/dos/fetchContests';
 
-
-function countyRefresh() {
-    countyDashboardRefresh();
-    fetchAuditBoardASMState();
-    fetchCountyASMState();
+function* countyRefresh() {
+    yield all([
+        call(countyDashboardRefresh),
+        call(fetchAuditBoardASMState),
+        call(fetchCountyASMState),
+    ]);
 }
 
-function dosRefresh() {
-    dosDashboardRefresh();
-    dosFetchContests();
+function* dosRefresh() {
+    yield all([
+        call(dosDashboardRefresh),
+        call(dosFetchContests),
+    ]);
 }
 
-
-export default function* dosLoginSaga() {
+export default function* syncSaga() {
     const countyRefreshActions = [
         'AUDIT_BOARD_SIGN_IN_OK',
         'AUDIT_BOARD_SIGN_OUT_OK',
         'BALLOT_NOT_FOUND_FAIL',
         'BALLOT_NOT_FOUND_NETWORK_FAIL',
         'BALLOT_NOT_FOUND_OK',
+        'SET_NUMBER_OF_AUDIT_BOARDS_OK',
         'SUBMIT_ROUND_SIGN_OFF_OK',
         'UPLOAD_ACVR_FAIL',
         'UPLOAD_ACVR_NETWORK_FAIL',

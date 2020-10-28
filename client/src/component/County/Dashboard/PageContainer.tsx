@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { History } from 'history';
+import { RouteComponentProps } from 'react-router-dom';
 
 import withCountyState from 'corla/component/withCountyState';
 import withPoll from 'corla/component/withPoll';
@@ -13,7 +13,6 @@ import CountyDashboardPage from './Page';
 import finishAudit from 'corla/action/county/finishAudit';
 
 import allRoundsCompleteSelector from 'corla/selector/county/allRoundsComplete';
-import auditBoardSignedInSelector from 'corla/selector/county/auditBoardSignedIn';
 import auditCompleteSelector from 'corla/selector/county/auditComplete';
 import auditStartedSelector from 'corla/selector/county/auditStarted';
 import canAuditSelector from 'corla/selector/county/canAudit';
@@ -22,19 +21,19 @@ import canSignInSelector from 'corla/selector/county/canSignIn';
 import currentRoundNumberSelector from 'corla/selector/county/currentRoundNumber';
 import missedDeadlineSelector from 'corla/selector/county/missedDeadline';
 
+interface MatchParams {
+    id: string;
+}
 
-interface DashboardProps {
+interface DashboardProps extends RouteComponentProps<MatchParams> {
     allRoundsComplete: boolean;
-    auditBoardSignedIn: boolean;
     auditComplete: boolean;
     auditStarted: boolean;
     canAudit: boolean;
     canRenderReport: boolean;
     canSignIn: boolean;
-    contests: County.ContestDefs;
     countyState: County.AppState;
     currentRoundNumber: number;
-    history: History;
     missedDeadline: boolean;
 }
 
@@ -48,6 +47,7 @@ class CountyDashboardContainer extends React.Component<DashboardProps> {
             canSignIn,
             countyState,
             history,
+            match,
             missedDeadline,
         } = this.props;
 
@@ -63,14 +63,15 @@ class CountyDashboardContainer extends React.Component<DashboardProps> {
             return <div />;
         }
 
+        const boardIndex = parseInt(match.params.id, 10);
+
         const countyInfo = counties[countyState.id];
-        const boardSignIn = () => history.push('/county/board');
-        const startAudit = () => history.push('/county/audit');
+        const startAudit = () =>
+            history.push('/county/audit/' + boardIndex);
 
         const props = {
             allRoundsComplete,
             auditStarted,
-            boardSignIn,
             canAudit,
             canRenderReport,
             canSignIn,
@@ -84,18 +85,14 @@ class CountyDashboardContainer extends React.Component<DashboardProps> {
     }
 }
 
-function select(countyState: County.AppState) {
-    const { contestDefs } = countyState;
-
+function mapStateToProps(countyState: County.AppState) {
     return {
         allRoundsComplete: allRoundsCompleteSelector(countyState),
-        auditBoardSignedIn: auditBoardSignedInSelector(countyState),
         auditComplete: auditCompleteSelector(countyState),
         auditStarted: auditStartedSelector(countyState),
         canAudit: canAuditSelector(countyState),
         canRenderReport: canRenderReportSelector(countyState),
         canSignIn: canSignInSelector(countyState),
-        contests: contestDefs,
         countyState,
         currentRoundNumber: currentRoundNumberSelector(countyState),
         missedDeadline: missedDeadlineSelector(countyState),
@@ -106,5 +103,5 @@ export default withPoll(
     withCountyState(CountyDashboardContainer),
     'COUNTY_DASHBOARD_POLL_START',
     'COUNTY_DASHBOARD_POLL_STOP',
-    select,
+    mapStateToProps,
 );

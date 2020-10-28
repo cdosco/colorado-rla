@@ -2,9 +2,7 @@ import { endpoint } from 'corla/config';
 
 import createFetchAction from 'corla/action/createFetchAction';
 
-
 const url = endpoint('audit-board-asm-state');
-
 
 export default createFetchAction({
     failType: 'FETCH_AUDIT_BOARD_ASM_STATE_FAIL',

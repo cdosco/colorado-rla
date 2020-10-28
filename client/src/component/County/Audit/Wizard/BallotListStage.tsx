@@ -2,10 +2,12 @@ import * as React from 'react';
 
 import * as _ from 'lodash';
 
+import { Button, Card, Intent } from '@blueprintjs/core';
+
 import downloadCvrsToAuditCsv from 'corla/action/county/downloadCvrsToAuditCsv';
 
-
 interface BallotListStageProps {
+    auditBoardIndex: number;
     countyInfo: CountyInfo;
     countyState: County.AppState;
     cvrsToAudit: JSON.CVR[];
@@ -13,7 +15,11 @@ interface BallotListStageProps {
 }
 
 const BallotListStage = (props: BallotListStageProps) => {
-    const { countyInfo, countyState, cvrsToAudit, nextStage } = props;
+    const { auditBoardIndex,
+            countyInfo,
+            countyState,
+            cvrsToAudit,
+            nextStage } = props;
 
     const roundNumber = countyState.currentRound!.number;
 
@@ -26,12 +32,15 @@ const BallotListStage = (props: BallotListStageProps) => {
 
         return (
             <tr key={ cvr.imprinted_id }>
+                <td>{ cvr.storage_location }</td>
                 <td>{ cvr.scanner_id }</td>
                 <td>{ cvr.batch_id }</td>
                 <td>{ cvr.record_id }</td>
-                <td>{ cvr.storage_location }</td>
                 <td>{ cvr.ballot_type }</td>
                 <td>{ audited }</td>
+                <td>{ typeof cvr.audit_board_index === 'number'
+                      ? `${cvr.audit_board_index + 1}`
+                      : '' }</td>
             </tr>
         );
     });
@@ -51,8 +60,8 @@ const BallotListStage = (props: BallotListStageProps) => {
 
     return (
         <div className='rla-page'>
-            <h2>Ballot Cards to Audit</h2>
-            <div className='pt-card'>
+            <h2>Audit Board { `${auditBoardIndex + 1 }` }: Ballot Cards to Audit</h2>
+            <Card>
                     <div>
                         The Secretary of State has established the following risk limit(s) for
                         the following ballot contest(s) to audit:
@@ -60,51 +69,51 @@ const BallotListStage = (props: BallotListStageProps) => {
                     <ul>
                         { contestsUnderAuditListItems }
                     </ul>
-            </div>
-            <div className='pt-card'>
+            </Card>
+            <Card>
                 The Secretary of State has randomly selected { cvrsToAudit.length } ballot cards
-                for the { countyInfo.name } County Audit Board to examine in Round
-                <span> { roundNumber } </span> to satisfy the risk limit(s) for the audited contest(s).
-            </div>
-            <div className='pt-card'>
-                The Audit Board must locate and retrieve, or observe a county staff member
+                for the { countyInfo.name } County Audit Board(s) to examine in Round
+                <span>{ ' ' + roundNumber }</span> to satisfy the risk limit(s) for the audited contest(s).
+            </Card>
+            <Card>
+                The Audit Board(s) must locate and retrieve, or observe a county staff member
                 locate and retrieve, the following randomly selected ballot cards for the initial
                 round of this risk-limiting audit:
-            </div>
-            <div className='pt-card'>
-                Audit Board: Click Start audit to begin reporting the votes you observe on each
-                of the above ballot cards.
-            </div>
-            <button
-                className='pt-button pt-intent-primary'
-                onClick={ nextStage }>
+            </Card>
+            <Card>
+                Audit Board { `${auditBoardIndex + 1 }` }: Click Start audit to
+                begin reporting the votes you observe on each of the below
+                ballot cards that have been assigned to you.
+            </Card>
+            <Button intent={ Intent.PRIMARY }
+                    onClick={ nextStage }>
                 Start audit
-            </button>            
-            <div className='pt-card'>
-                <button className='pt-button pt-intent-primary' onClick={ downloadCsv } >
+            </Button>
+            <Card>
+                <Button intent={ Intent.PRIMARY } onClick={ downloadCsv } >
                    Download ballot list as CSV
-                </button>            
-                <div className='pt-card'>
-                    <table className='pt-table pt-bordered pt-condensed'>
+                </Button>
+                <Card>
+                    <table className='pt-html-table pt-html-table-bordered pt-small'>
                         <thead>
                             <tr>
-                                <th>Scanner #</th>
-                                <th>Batch #</th>
-                                <th>Ballot Position #</th>
-                                <th>Storage Bin</th>
-                                <th>Ballot Type</th>
+                                <th>Storage bin</th>
+                                <th>Scanner</th>
+                                <th>Batch</th>
+                                <th>Ballot position</th>
+                                <th>Ballot type</th>
                                 <th>Audited</th>
+                                <th>Audit board</th>
                             </tr>
                         </thead>
                         <tbody>
                             { ballotListRows }
                         </tbody>
                     </table>
-                </div>
-            </div>
+                </Card>
+            </Card>
         </div>
     );
 };
-
 
 export default BallotListStage;

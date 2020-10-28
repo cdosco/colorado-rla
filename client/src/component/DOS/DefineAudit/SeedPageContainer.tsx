@@ -5,11 +5,11 @@ import { History } from 'history';
 
 import withDOSState from 'corla/component/withDOSState';
 import withSync from 'corla/component/withSync';
-
+import { formatLocalDate } from 'corla/date';
 import SeedPage from './SeedPage';
+import resetAudit from 'corla/action/dos/resetAudit';
 
 import uploadRandomSeed from 'corla/action/dos/uploadRandomSeed';
-
 
 interface ContainerProps {
     dosState: DOS.AppState;
@@ -18,8 +18,8 @@ interface ContainerProps {
     seed: string;
 }
 
-
 class SeedPageContainer extends React.Component<ContainerProps> {
+
     public render() {
         const { history, publicMeetingDate, seed, dosState } = this.props;
 
@@ -34,11 +34,15 @@ class SeedPageContainer extends React.Component<ContainerProps> {
         if (dosState.asm === 'DOS_AUDIT_ONGOING') {
             return <Redirect to='/sos' />;
         }
-
+        const previousPage = async() => {
+			      await resetAudit();
+            history.push('/sos/audit');
+        };
+ 
         const props = {
-            back: () => history.push('/sos/audit/select-contests'),
+            back: previousPage,
+            formattedPublicMeetingDate: formatLocalDate(publicMeetingDate),
             nextPage: () => history.push('/sos/audit/review'),
-            publicMeetingDate,
             seed,
             uploadRandomSeed,
         };
@@ -47,7 +51,7 @@ class SeedPageContainer extends React.Component<ContainerProps> {
     }
 }
 
-function select(dosState: DOS.AppState) {
+function mapStateToProps(dosState: DOS.AppState) {
     if (!dosState) { return {}; }
 
     return {
@@ -57,9 +61,8 @@ function select(dosState: DOS.AppState) {
     };
 }
 
-
 export default withSync(
     withDOSState(SeedPageContainer),
     'DOS_DEFINE_AUDIT_RANDOM_SEED_SYNC',
-    select,
+    mapStateToProps,
 );

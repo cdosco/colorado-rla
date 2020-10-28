@@ -24,10 +24,9 @@ import static us.freeandfair.corla.asm.ASMEvent.CountyDashboardEvent.COUNTY_AUDI
 import static us.freeandfair.corla.asm.ASMEvent.CountyDashboardEvent.COUNTY_START_AUDIT_EVENT;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.text.MessageFormat;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.persistence.PersistenceException;
 
@@ -54,6 +53,7 @@ import us.freeandfair.corla.asm.DoSDashboardASM;
 import us.freeandfair.corla.model.County;
 import us.freeandfair.corla.model.CountyDashboard;
 import us.freeandfair.corla.model.DoSDashboard;
+import us.freeandfair.corla.model.AuditReason;
 import us.freeandfair.corla.model.AuditStatus;
 import us.freeandfair.corla.model.ComparisonAudit;
 import us.freeandfair.corla.model.Elector;
@@ -201,53 +201,31 @@ public class SignOffAuditRound extends AbstractAuditBoardDashboardEndpoint {
                             String.valueOf(cdb.id()));
         }
 
+        logAuditsForCountyDashboard(cdb);
+
         // update the ASM state for the county and maybe DoS
         if (!DISABLE_ASM) {
           final boolean auditComplete;
-          LOGGER.debug(String
+          LOGGER.info(String
               .format("[signoff for %s County: cdb.estimatedSamplesToAudit()=%d," +
                       " cdb.auditedSampleCount()=%d," + " cdb.ballotsAudited()=%d]",
                       cdb.county().name(), cdb.estimatedSamplesToAudit(),
                       cdb.auditedSampleCount(), cdb.ballotsAudited()));
-          List<List<String>> resultReports = ReportRows.genSumResultsReport();
-          Set<ComparisonAudit> audits = cdb.getAudits();
-          Set<String> contestStrs = new HashSet<>();
-          for (ComparisonAudit audit : audits) {
-            contestStrs.add(audit.getContestName());
-          }
-          boolean isRisk = false;
-          for (int i = 0; i < resultReports.size(); i++) {
-            List<String> name = resultReports.get(i);
-            if (contestStrs.contains(name.get(0))) {
-              if (name.get(3).equalsIgnoreCase("No")) {
-                isRisk = true;
-                for (ComparisonAudit ca : audits) {
-                  if (ca.getContestName().equalsIgnoreCase(name.get(0))) {
-                    ca.setAuditStatus(AuditStatus.IN_PROGRESS);
-                    Persistence.saveOrUpdate(ca);
-                    break;
-                  }
-                }
-              }
-            }
-          }
-          if ((cdb.allAuditsComplete()) && (!isRisk)) {
-            // my_event.set(RISK_LIMIT_ACHIEVED_EVENT);
+
+          if (cdb.allAuditsComplete()) {
+            my_event.set(RISK_LIMIT_ACHIEVED_EVENT);
             // In this case, we'd be terminating single county audits
             // for opportunistic benefits only.
             final List<ComparisonAudit> terminated = cdb.endSingleCountyAudits();
             LOGGER.debug(String.format("[signoff: all targeted audits finished in %s County." +
                                        " Terminated these audits: %s]", cdb.county().name(),
                                        terminated));
-
             my_event.set(ROUND_SIGN_OFF_EVENT);
-            auditComplete = true;
-            // final CountyDashboardASM countyDashboardASM =
-            // ASMUtilities.asmFor(CountyDashboardASM.class,
-            // String.valueOf(cdb.id()));
-            // countyDashboardASM.stepEvent(COUNTY_AUDIT_COMPLETE_EVENT);
-
-            // ASMUtilities.save(countyDashboardASM);
+            if (participatesInStateAudit(cdb)) {
+              auditComplete = allCountyAuditBoardsSignedOff();
+            } else {
+              auditComplete = true;
+            }
           } else if (cdb.cvrsImported() <= cdb.ballotsAudited()) {
             // In this case, we'd be terminating targeted and
             // opportunistic single county audits.
@@ -258,8 +236,6 @@ public class SignOffAuditRound extends AbstractAuditBoardDashboardEndpoint {
                         " %s in %s County. All complete? (%b)]", terminated,
                         cdb.county().name(), auditComplete));
             my_event.set(ROUND_SIGN_OFF_EVENT);
-            // Check if any County is in sign-off
-
           } else {
             LOGGER.debug("[signoff: the round ended normally]");
             auditComplete = false;
@@ -269,121 +245,12 @@ public class SignOffAuditRound extends AbstractAuditBoardDashboardEndpoint {
           if (auditComplete) {
             LOGGER.info(String.format("[signoff: round complete in %s County]",
                                       cdb.county().name()));
-            // notifyRoundComplete(cdb.id());
 
             LOGGER.info(String.format("[signoff: audit complete in %s County]",
                                       cdb.county().name()));
-            boolean foundSignOff = false;
-            List<CountyDashboard> countyDashboardList =
-                Persistence.getAll(CountyDashboard.class);
-            if (countyDashboardList.size() == 0) {
-              foundSignOff = true;
-            }
-            for (final CountyDashboard cdbIn : countyDashboardList) {
-              if (cdbIn.id().intValue() == cdb.id().intValue()) {
-                continue;
-              }
-              resultReports = ReportRows.genSumResultsReport();
-              audits = cdbIn.getAudits();
-              contestStrs = new HashSet<>();
-              for (ComparisonAudit audit : audits) {
-                contestStrs.add(audit.getContestName());
-              }
-              isRisk = false;
-              for (int j = 0; j < resultReports.size(); j++) {
-                List<String> name2 = resultReports.get(j);
-                if (contestStrs.contains(name2.get(0))) {
-                  if (name2.get(3).equalsIgnoreCase("No")) {
-                    isRisk = true;
-                    break;
-                  }
-                }
-              }
-              // ASMUtilities.asmFor(AuditBoardDashboardASM.class,
-              // String.valueOf(cdbIn.id()));
-              if (isRisk) {
-                foundSignOff = true;
-                break;
-              } else if (!cdbIn.allAuditsComplete()) {
-                final CountyDashboardASM countyDashboardASM =
-                    ASMUtilities.asmFor(CountyDashboardASM.class, String.valueOf(cdbIn.id()));
-                if (countyDashboardASM.currentState()
-                    .equals(CountyDashboardState.COUNTY_AUDIT_UNDERWAY)) {
-                  countyDashboardASM.stepEvent(COUNTY_AUDIT_COMPLETE_EVENT);
-
-                  ASMUtilities.save(countyDashboardASM);
-                }
-                break;
-              }
-            }
-            // No Dign Offs
-            if (foundSignOff == false) {
-              for (final CountyDashboard cdbIn : countyDashboardList) {
-                if (cdb.id().equals(cdbIn.id())) {
-                  final CountyDashboardASM countyDashboardASM = ASMUtilities
-                      .asmFor(CountyDashboardASM.class, String.valueOf(cdbIn.id()));
-                  ASMUtilities.asmFor(AuditBoardDashboardASM.class,
-                                      String.valueOf(cdbIn.id()));
-                  final List<ComparisonAudit> terminated = cdb.endSingleCountyAudits();
-                  LOGGER.debug(String
-                      .format("[notifyRoundComplete: all targeted audits finished in %s County." +
-                              " Terminated these audits: %s]", cdbIn.county().name(),
-                              terminated));
-                  LOGGER.info(String
-                      .format("[notifyRoundComplete: allAuditsComplete! %s County is FINISHED.]",
-                              cdbIn.county().name()));
-                  if (countyDashboardASM
-                      .currentState() != ASMState.CountyDashboardState.COUNTY_AUDIT_COMPLETE) {
-                    countyDashboardASM.stepEvent(COUNTY_AUDIT_COMPLETE_EVENT);
-                    ASMUtilities.save(countyDashboardASM);
-                  }
-                  continue;
-                }
-                // In case this cdb was waiting for one of their cross-county
-                // audits to
-                // finish, we can say they are done now, and they won't have to
-                // start a
-                // round and sign in to find out that they have nothing to do.
-                // -!- this is the same logic in StartAuditRound
-                final CountyDashboardASM countyDashboardASM =
-                    ASMUtilities.asmFor(CountyDashboardASM.class, String.valueOf(cdbIn.id()));
-                final AuditBoardDashboardASM auditBoardASM = ASMUtilities
-                    .asmFor(AuditBoardDashboardASM.class, String.valueOf(cdbIn.id()));
-                final Boolean inProgress =
-                    auditBoardASM.currentState().equals(ROUND_IN_PROGRESS);
-
-                if (countyDashboardASM.currentState()
-                    .equals(CountyDashboardState.COUNTY_AUDIT_UNDERWAY) && !inProgress &&
-                    cdbIn.allAuditsComplete()) {
-                  final List<ComparisonAudit> terminated = cdb.endSingleCountyAudits();
-                  // LOGGER.debug(String.format("[notifyRoundComplete:
-                  // finished=%b, the_id=%d, cdb=%s]",
-                  // cdbIn.id(), cdbIn.toString()));
-                  LOGGER.debug(String
-                      .format("[notifyRoundComplete: all targeted audits finished in %s County." +
-                              " Terminated these audits: %s]", cdbIn.county().name(),
-                              terminated));
-                  LOGGER.info(String
-                      .format("[notifyRoundComplete: allAuditsComplete! %s County is FINISHED.]",
-                              cdbIn.county().name()));
-
-                  auditBoardASM.stepEvent(RISK_LIMIT_ACHIEVED_EVENT);
-                  countyDashboardASM.stepEvent(COUNTY_AUDIT_COMPLETE_EVENT);
-
-                  ASMUtilities.save(auditBoardASM);
-                  ASMUtilities.save(countyDashboardASM);
-                }
-              }
-              ASMUtilities.asmFor(DoSDashboardASM.class, DoSDashboardASM.IDENTITY);
-              ASMUtilities.step(DOS_AUDIT_COMPLETE_EVENT, DoSDashboardASM.class,
-                                DoSDashboardASM.IDENTITY);
-              LOGGER.debug("[notifyRoundComplete stepped DOS_ROUND_COMPLETE_EVENT]");
-            }
-          } else {
-            LOGGER.info(String.format("[signoff: round complete in %s County]",
-                                      cdb.county().name()));
-            // notifyRoundComplete(cdb.id());
-          }
+            notifyAuditCompleteForDoS();
+            notifyRoundCompleteForDoS(cdb.id());
+          } 
         }
       }
     } catch (final PersistenceException e) {
@@ -398,4 +265,145 @@ public class SignOffAuditRound extends AbstractAuditBoardDashboardEndpoint {
 
     return my_endpoint_result.get();
   }
+
+  /**
+   * Notifies the DoS dashboard that the round is over if all the counties
+   * _except_ for the one identified in the parameter have completed their audit
+   * round, or are not auditing (the excluded county is not counted because its
+   * transition will not happen until this endpoint returns).
+   *
+   * @param the_id The ID of the county to exclude.
+   */
+  private void notifyRoundCompleteForDoS(final Long the_id) {
+    boolean finished = true;
+    for (final CountyDashboard cdb : Persistence.getAll(CountyDashboard.class)) {
+      if (cdb.id().equals(the_id)) {
+        continue; // <- sneaky filter for all but this county
+        // ROUND_COMPLETE_EVENT has already happened for this county above, and
+        // the notifyAuditComplete will handle COUNTY_AUDIT_COMPLETE_EVENT for
+        // this county
+      }
+
+      if (!cdb.id().equals(the_id)) {
+        finished &= cdb.currentRound() == null;
+      }
+    }
+
+    if (finished) {
+      for (final CountyDashboard cdb : Persistence.getAll(CountyDashboard.class)) {
+        if (cdb.id().equals(the_id)) {
+          continue;
+        }
+        markCountyAsDone(cdb);
+      }
+
+      DoSDashboardASM dashboardASM = ASMUtilities.asmFor(DoSDashboardASM.class, DoSDashboardASM.IDENTITY);
+
+      if (dashboardASM.currentState().equals(DoSDashboardState.DOS_AUDIT_ONGOING)) {
+        ASMUtilities.step(DOS_ROUND_COMPLETE_EVENT, DoSDashboardASM.class,
+                          DoSDashboardASM.IDENTITY);
+        LOGGER.debug("[notifyRoundComplete stepped DOS_ROUND_COMPLETE_EVENT]");
+      }
+    }
+  }
+
+  /**
+   * Notifies the county and DoS dashboards that the audit is complete.
+   */
+  private void notifyAuditCompleteForDoS() {
+    ASMUtilities.step(COUNTY_AUDIT_COMPLETE_EVENT, CountyDashboardASM.class,
+                      my_asm.get().identity());
+    // check to see if all counties are complete
+    boolean all_complete = true;
+    for (final County c : Persistence.getAll(County.class)) {
+      final CountyDashboardASM asm =
+          ASMUtilities.asmFor(CountyDashboardASM.class, String.valueOf(c.id()));
+      all_complete &= asm.isInFinalState();
+    }
+    if (all_complete) {
+      ASMUtilities.step(DOS_AUDIT_COMPLETE_EVENT, DoSDashboardASM.class,
+                        DoSDashboardASM.IDENTITY);
+    }
+  }
+
+  /**
+   * 
+   * Marks a county as done, marks the risk limit achieved event and
+   * county as audit complete.
+   * 
+   * Technically the county should be done at this point. The If check
+   * is a bit redundant but it was in the code so kept for an additional
+   * check.
+   * 
+   * @param cdb County dashboard who signed off
+   */
+  private void markCountyAsDone(CountyDashboard cdb) {
+    final CountyDashboardASM countyDashboardASM =
+        ASMUtilities.asmFor(CountyDashboardASM.class, String.valueOf(cdb.id()));
+    final AuditBoardDashboardASM auditBoardASM =
+        ASMUtilities.asmFor(AuditBoardDashboardASM.class, String.valueOf(cdb.id()));
+    final Boolean inProgress =
+        auditBoardASM.currentState().equals(ROUND_IN_PROGRESS) || auditBoardASM.currentState()
+            .equals(ROUND_IN_PROGRESS_NO_AUDIT_BOARD);
+
+    if (countyDashboardASM.currentState().equals(CountyDashboardState.COUNTY_AUDIT_UNDERWAY) &&
+        !inProgress && cdb.allAuditsComplete()) {
+      final List<ComparisonAudit> terminated = cdb.endSingleCountyAudits();
+      LOGGER.debug(String
+          .format("[markCountyAsDone: all audits finished in %s County." +
+                  " Terminated these audits: %s]", cdb.county().name(), terminated));
+      auditBoardASM.stepEvent(RISK_LIMIT_ACHIEVED_EVENT);
+      countyDashboardASM.stepEvent(COUNTY_AUDIT_COMPLETE_EVENT);
+
+      ASMUtilities.save(auditBoardASM);
+      ASMUtilities.save(countyDashboardASM);
+    }
+  }
+
+  private boolean allCountyAuditBoardsSignedOff() {
+
+    for (CountyDashboard cdb : Persistence.getAll(CountyDashboard.class)) {
+      final CountyDashboardASM countyDashboardASM =
+          ASMUtilities.asmFor(CountyDashboardASM.class, String.valueOf(cdb.id()));
+      LOGGER.debug(MessageFormat
+          .format("County={0} dashboard state={1} auditBoardCount={2} currentRound={3}",
+                  cdb.county().name(), countyDashboardASM.currentState(),
+                  cdb.auditBoardCount(), cdb.currentRound()));
+
+      if (!countyDashboardASM.currentState()
+          .equals(CountyDashboardState.COUNTY_AUDIT_UNDERWAY)) {
+        continue;
+      } // do not include counties where audit is not underway
+
+      final boolean currentRoundNotSignedOff =
+          cdb.currentRound() != null && ((cdb.currentRound().signatories().size() == 0) ||
+                                         (cdb.currentRound().signatories().size() < cdb.auditBoardCount()));
+
+      if (currentRoundNotSignedOff) {
+        LOGGER.info("allCountyAuditBoardsSignedOff: false");
+        return false;
+      }
+    }
+    LOGGER.info("allCountyAuditBoardsSignedOff: true");
+    return true;
+  }
+
+  private boolean participatesInStateAudit(CountyDashboard currentCountyDashboard) {
+    boolean returnVal = (currentCountyDashboard.getAudits().stream()
+        .filter(audit -> audit.getCounties().size() > 1)
+        .filter(ca -> ca.auditReason() != AuditReason.OPPORTUNISTIC_BENEFITS)
+        .filter(audit -> !audit.isHandCount()).count() > 0);
+    LOGGER.debug(MessageFormat.format("participatesInStateAudit: {0}", returnVal));
+    return returnVal;
+  }
+
+  private void logAuditsForCountyDashboard(CountyDashboard cd) {
+    LOGGER.debug(MessageFormat.format("{0} {1} {2} {3}", "Audit Name", "Audit Reason",
+                                     "Audit Status", "Targeted"));
+    for (ComparisonAudit ca : cd.getAudits()) {
+      LOGGER.debug(MessageFormat.format("{0} {1} {2} {3}", ca.getContestName(),
+                                       ca.auditReason(), ca.auditStatus(), ca.isTargeted()));
+    }
+  }
+
 }

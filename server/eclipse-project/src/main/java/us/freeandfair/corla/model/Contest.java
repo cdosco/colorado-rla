@@ -83,7 +83,7 @@ public class Contest implements PersistentEntity, Serializable {
   /**
    * The contest name.
    */
-  @Column(name = "name", updatable = false, nullable = false)
+  @Column(name = "name", nullable = false)
   private String my_name;
 
   /**
@@ -105,6 +105,7 @@ public class Contest implements PersistentEntity, Serializable {
   @ElementCollection(fetch = FetchType.EAGER)
   @OrderColumn(name = "index")
   @CollectionTable(name = "contest_choice",
+                   uniqueConstraints= @UniqueConstraint(columnNames={"contest_id","my_name"}),
                    joinColumns = @JoinColumn(name = "contest_id", 
                                              referencedColumnName = "my_id"))
   private List<Choice> my_choices = new ArrayList<>();
@@ -194,7 +195,12 @@ public class Contest implements PersistentEntity, Serializable {
   public String name() {
     return my_name;
   }
-  
+
+  /** set the name **/
+  public void setName(final String name) {
+    this.my_name = name;
+  }
+
   /**
    * @return the contest description.
    */
@@ -223,11 +229,23 @@ public class Contest implements PersistentEntity, Serializable {
     }
     return false;
   }
-  
+
+  /**
+   * Change a choice name as part of Canonicalization.
+   */
+  public void updateChoiceName(final String oldName,
+                               final String newName) {
+    for (final Choice choice : my_choices) {
+      if (choice.name().equals(oldName)) {
+        choice.setName(newName);
+      }
+    }
+  }
+
   /**
    * @return the contest choices.
    */
-  public List<Choice> choices() {
+  public List<Choice> choices() {    
     return Collections.unmodifiableList(my_choices);
   }
   

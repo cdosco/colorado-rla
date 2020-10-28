@@ -7,7 +7,6 @@ import createPollSaga from 'corla/saga/createPollSaga';
 import dashboardRefresh from 'corla/action/dos/dashboardRefresh';
 import fetchContests from 'corla/action/dos/fetchContests';
 
-
 function* contestOverviewSaga() {
     yield takeLatest('DOS_CONTEST_OVERVIEW_SYNC', () => {
         fetchContests();
@@ -58,15 +57,14 @@ function* defineAuditReviewSaga() {
     yield takeLatest('DOS_DEFINE_AUDIT_REVIEW_SYNC', () => dashboardRefresh());
 }
 
-
 export default function* pollSaga() {
     yield all([
         contestOverviewSaga(),
         countyDetailSaga(),
         countyOverviewSaga(),
         dashboardPollSaga(),
-        defineAuditReviewSaga(),
         defineAuditSaga(),
+        defineAuditReviewSaga(),
         randomSeedSaga(),
         selectContestsPollSaga(),
     ]);

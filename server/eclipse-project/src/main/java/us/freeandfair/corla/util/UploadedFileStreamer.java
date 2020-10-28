@@ -17,6 +17,7 @@ import java.sql.SQLException;
 
 import javax.persistence.PersistenceException;
 
+import us.freeandfair.corla.json.UploadedFileDTO;
 import us.freeandfair.corla.model.UploadedFile;
 import us.freeandfair.corla.persistence.Persistence;
 
@@ -32,7 +33,10 @@ public class UploadedFileStreamer implements Runnable {
    * The uploaded file.
    */
   private UploadedFile my_file;
-  
+
+
+  private UploadedFileDTO uploadedFileDTO;
+
   /**
    * The input stream from the blob.
    */
@@ -52,7 +56,11 @@ public class UploadedFileStreamer implements Runnable {
   public UploadedFileStreamer(final UploadedFile the_file) {
     my_file = the_file;
   }
-  
+
+  public UploadedFileStreamer(final UploadedFileDTO uploadedFileDTO) {
+    this.uploadedFileDTO = uploadedFileDTO;
+  }
+
   /**
    * The run method. This opens up a new persistence session and database
    * transaction, and sets up the stream for reading. This method should 
@@ -68,7 +76,7 @@ public class UploadedFileStreamer implements Runnable {
     my_running = true;
     Persistence.beginTransaction();
     // get a session-local reference to the file
-    my_file = Persistence.getByID(my_file.id(), UploadedFile.class);
+    my_file = Persistence.getByID(this.uploadedFileDTO.getFileId(), UploadedFile.class);
     // get the blob stream
     try {
       my_stream = my_file.file().getBinaryStream();

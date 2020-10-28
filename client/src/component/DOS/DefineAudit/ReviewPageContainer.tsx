@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
 import { History } from 'history';
@@ -8,9 +7,9 @@ import withDOSState from 'corla/component/withDOSState';
 import withSync from 'corla/component/withSync';
 
 import ReviewPage from './ReviewPage';
+import resetAudit from 'corla/action/dos/resetAudit';
 
 import publishBallotsToAudit from 'corla/action/dos/publishBallotsToAudit';
-
 
 interface ContainerProps {
     history: History;
@@ -33,24 +32,27 @@ class ReviewPageContainer extends React.Component<ContainerProps> {
             return <Redirect to='/sos' />;
         }
 
+       const previousPage = async() => {
+			      await resetAudit();
+            history.push('/sos/audit');
+        };
         const props = {
-            back: () => history.push('/sos/audit/seed'),
+            back:previousPage,
             dosState,
             publishBallotsToAudit,
-            saveAndDone: () => history.push('/sos'),
+            saveAndDone: () => history.push('/sos')
         };
 
         return <ReviewPage { ...props } />;
     }
 }
 
-function select(dosState: DOS.AppState) {
+function mapStateToProps(dosState: DOS.AppState) {
     return { dosState };
 }
-
 
 export default withSync(
     withDOSState(ReviewPageContainer),
     'DOS_DEFINE_AUDIT_REVIEW_SYNC',
-    select,
+    mapStateToProps,
 );

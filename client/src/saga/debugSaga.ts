@@ -1,6 +1,5 @@
 import { takeEvery } from 'redux-saga/effects';
 
-
 export default function* debugSaga() {
     yield takeEvery('*', (a: any) => {
         // tslint:disable

@@ -2,8 +2,7 @@ import * as React from 'react';
 
 import * as _ from 'lodash';
 
-import { Intent, ProgressBar, Spinner } from '@blueprintjs/core';
-
+import { Card, Intent, ProgressBar, Spinner } from '@blueprintjs/core';
 
 interface ProgressProps {
     count: number;
@@ -34,10 +33,10 @@ const Progress = (props: ProgressProps) => {
 
 const UploadingFile = () => {
     return (
-        <div className='pt-card'>
+        <Card>
             <Spinner className='pt-large' intent={ Intent.PRIMARY } />
             <div>Uploading file...</div>
-        </div>
+        </Card>
     );
 };
 
@@ -58,14 +57,13 @@ const Uploading = (props: UploadingProps) => {
 
     if (cvrImportStatus.state === 'IN_PROGRESS') {
         return (
-            <div className='pt-card'>
+            <Card>
                 <Progress file={ cvrExport } count={ cvrExportCount } />
-            </div>
+            </Card>
         );
     } else {
         return <UploadingFile />;
     }
 };
-
 
 export default Uploading;

@@ -22,9 +22,14 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import com.google.gson.Gson;
+
 import org.hibernate.Session;
+import org.hibernate.query.Query;
+
 
 import us.freeandfair.corla.Main;
+import us.freeandfair.corla.json.UploadedFileDTO;
 import us.freeandfair.corla.model.UploadedFile;
 import us.freeandfair.corla.persistence.Persistence;
 
@@ -128,4 +133,73 @@ public final class UploadedFileQueries {
     }
     return result;
   }
+
+
+  public static UploadedFileDTO getAttrs(final UploadedFileDTO upF) {
+    final Session s = Persistence.currentSession();
+    final Query q =
+      s.createNativeQuery("select id, status, county_id "
+                          + " from uploaded_file up "
+                          + " where up.id = :id ");
+
+    q.setParameter("id", upF.getFileId());
+    Object[] row = (Object[])q.getSingleResult();
+
+    if (null == row) {
+      return null;
+    } else {
+      upF.setStatus((String)row[1]);
+      upF.setCountyId(((java.math.BigInteger)row[2]).longValue());
+      return upF;
+    }
+  }
+
+  /** having to go around hibernate for cross-thread updates **/
+  public static int updateStatus(final UploadedFileDTO upF) {
+    final Session s = Persistence.currentSession();
+    final Query q =
+      s.createNativeQuery("update uploaded_file up "
+                    + " set status = :status"
+                    + " where up.id = :id");
+
+    q.setParameter("id", upF.getFileId());
+    q.setParameter("status", upF.getStatus());
+
+    return q.executeUpdate();
+  }
+
+  /** having to go around hibernate for cross-thread updates **/
+  public static int updateStatusAndResult(final UploadedFileDTO upF) {
+    final Session s = Persistence.currentSession();
+    final Query q =
+      s.createNativeQuery("update uploaded_file up "
+                          + " set status = :status,"
+                          + " result = :result, "
+                          + " version = version + 1 "
+                          + " where up.id = :id");
+
+    q.setParameter("id", upF.getFileId());
+    q.setParameter("status", upF.getStatus());
+    q.setParameter("result", (new Gson()).toJson(upF.getResult()));
+
+    return q.executeUpdate();
+  }
+
+  /** having to go around hibernate for cross-thread updates **/
+  public static int setCVRFileOnCounty(final UploadedFileDTO upF) {
+    final Session s = Persistence.currentSession();
+    final Query q =
+      s.createNativeQuery("update county_dashboard cdb "
+                          + " set cvr_file_id = :id "
+                          + " where cdb.id = :countyId");
+
+    q.setParameter("id", upF.getFileId());
+    q.setParameter("countyId", upF.getCountyId());
+
+    return q.executeUpdate();
+  }
+
+
+
+
 }

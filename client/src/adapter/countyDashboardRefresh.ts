@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
 
-
 function parseBoardMember(e: JSON.AuditBoardMember): AuditBoardMember {
     return {
         firstName: e.first_name,
@@ -9,12 +8,19 @@ function parseBoardMember(e: JSON.AuditBoardMember): AuditBoardMember {
     };
 }
 
-function parseAuditBoard(board: JSON.AuditBoard): AuditBoard {
-    if (!board) {
-        return [];
-    }
+function parseAuditBoards(boards: JSON.AuditBoards): AuditBoards {
+    const ret: AuditBoards = {};
 
-    return board.members.map(parseBoardMember);
+    _.forEach(boards, (status, k) => {
+        const index = parseInt(k, 10);
+
+        ret[index] = {
+            members: _.map(status.members, parseBoardMember),
+            signIn: status.sign_in_time,
+        };
+    });
+
+    return ret;
 }
 
 function parseTimestamp(ts: string): Date {
@@ -62,17 +68,23 @@ function parseContestsUnderAudit(contestIds: number[], state: County.AppState): 
     });
 }
 
-function parseSignatories(s?: JSON.Elector[]): Elector[] {
+function parseSignatories(s?: JSON.Signatories): Signatories {
     if (!s) {
-        return [];
+        return {};
     }
 
-    return s.map(e => {
-        return {
-            firstName: e.first_name,
-            lastName: e.last_name,
-        };
+    const ret: Signatories = {};
+
+    _.forEach(s, (electors, idx: any) => {
+        ret[idx] = _.map(electors, (e: JSON.Elector): Elector => {
+            return {
+                firstName: e.first_name,
+                lastName: e.last_name,
+            };
+        });
     });
+
+    return ret;
 }
 
 function parseRound(data: JSON.Round): Round {
@@ -116,12 +128,12 @@ function parseFile(file: JSON.UploadedFile): Option<UploadedFile> {
     if (!file) { return null; }
 
     return {
-        approximateRecordCount: file.approximate_record_count,
-        countyId: file.county_id,
+        approximateRecordCount: file.approximateRecordCount,
+        countyId: file.countyId,
+        fileName: file.fileName,
         hash: file.hash,
-        hashStatus: file.hash_status,
-        id: file.file_id,
-        name: file.filename,
+        id: file.id,
+        result: file.result,
         size: file.size,
         status: file.status,
         timestamp: new Date(file.timestamp),
@@ -141,13 +153,15 @@ export function parse(data: JSON.CountyDashboard, state: County.AppState) {
 
     return {
         asm_state: data.asm_state,
-        auditBoard: parseAuditBoard(data.audit_board),
+        auditBoardCount: data.audit_board_count,
+        auditBoards: parseAuditBoards(data.audit_boards),
         auditTime: data.audit_time ? parseTimestamp(data.audit_time) : null,
         auditedBallotCount: data.audited_ballot_count,
         auditedPrefixLength: data.audited_prefix_length,
         ballotManifest: parseFile(data.ballot_manifest_file),
         ballotManifestCount: data.ballot_manifest_count,
-        ballotUnderAuditId: data.ballot_under_audit_id,
+        ballotSequenceAssignment: data.ballot_sequence_assignment,
+        ballotUnderAuditIds: data.ballot_under_audit_ids,
         ballotsRemainingInRound: data.ballots_remaining_in_round,
         contests: parseContests(data.contests, state),
         contestsUnderAudit: parseContestsUnderAudit(data.contests_under_audit, state),

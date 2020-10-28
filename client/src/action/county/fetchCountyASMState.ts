@@ -2,9 +2,7 @@ import { endpoint } from 'corla/config';
 
 import createFetchAction from 'corla/action/createFetchAction';
 
-
 const url = endpoint('county-asm-state');
-
 
 export default createFetchAction({
     failType: 'FETCH_COUNTY_ASM_STATE_FAIL',

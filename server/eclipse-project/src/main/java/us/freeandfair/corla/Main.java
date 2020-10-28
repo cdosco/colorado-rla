@@ -167,7 +167,7 @@ public final class Main {
   
   static {
     final String pom_location =
-        "/META-INF/maven/us.freeandfair.production/colorado_rla/pom.xml";
+        "/META-INF/maven/us.freeandfair.production/corla-server/pom.xml";
     final File pom = new File("pom.xml");
     String version = "UNKNOWN";
     InputStream pom_stream = null;

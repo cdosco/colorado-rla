@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
 
-
 function parseRound(data: any) {
     if (!data) {
         return {};
@@ -48,11 +47,11 @@ function parseFile(file: any): any {
     if (!file) { return null; }
 
     return {
-        countyId: file.county_id,
+        countyId: file.countyId,
+        fileName: file.fileName,
         hash: file.hash,
-        hashStatus: file.hash_status,
-        id: file.file_id,
-        name: file.filename,
+        id: file.id,
+        result: file.result,
         size: file.size,
         status: file.status,
         timestamp: new Date(file.timestamp),
@@ -65,8 +64,9 @@ function parseCountyStatus(countyStatus: any) {
     _.forEach(countyStatus, c => {
         result[c.id] = {
             asmState: c.asm_state,
-            auditBoard: parseAuditBoard(c.audit_board),
             auditBoardASMState: c.audit_board_asm_state,
+            auditBoardCount: c.audit_board_count,
+            auditBoards: _.map(c.audit_boards, parseAuditBoard),
             auditedBallotCount: c.audited_ballot_count,
             ballotManifest: parseFile(c.ballot_manifest_file),
             ballotsRemainingInRound: c.ballots_remaining_in_round,
@@ -99,14 +99,10 @@ function parseAuditedContests(data: any) {
 function parseElection(data: any): any {
     const info = data.audit_info;
 
-    if (!info) {
-        return null;
-    }
+    const date = info.election_date ? new Date(info.election_date) : new Date();
+    const type = info.election_type;
 
-    return {
-        date: new Date(info.election_date),
-        type: info.election_type,
-    };
+    return { date, type };
 }
 
 function parsePublicMeetingDate(data: any): Option<Date> {
@@ -161,6 +157,8 @@ export function parse(data: any) {
         auditReasons: data.audit_reasons,
         auditTypes: data.audit_types,
         auditedContests: parseAuditedContests(data.audited_contests),
+        canonicalChoices: data.audit_info.canonicalChoices,
+        canonicalContests: data.audit_info.canonicalContests,
         countyStatus: parseCountyStatus(data.county_status),
         discrepancyCounts: data.discrepancy_count,
         election: parseElection(data),

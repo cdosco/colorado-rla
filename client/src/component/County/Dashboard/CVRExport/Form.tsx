@@ -1,11 +1,18 @@
 import * as React from 'react';
+import IdleDialog from '../../../IdleDialog';
 
-import { EditableText } from '@blueprintjs/core';
-
+import {
+    Button,
+    EditableText,
+    FileInput,
+    FormGroup,
+    Intent,
+} from '@blueprintjs/core';
 
 interface FormProps {
     disableReupload: OnClick;
     fileUploaded: boolean;
+    fileDeleted: boolean;
     form: {
         file?: File;
         hash: string;
@@ -19,6 +26,7 @@ const CVRExportForm = (props: FormProps) => {
     const {
         disableReupload,
         fileUploaded,
+        fileDeleted,
         form,
         onFileChange,
         onHashChange,
@@ -30,46 +38,51 @@ const CVRExportForm = (props: FormProps) => {
     const fileName = file ? file.name : '';
 
     const cancelButton = (
-        <button className='pt-button pt-intent-warning' onClick={ disableReupload }>
+        <Button intent={ Intent.WARNING } onClick={ disableReupload }>
             Cancel
-        </button>
+        </Button>
     );
 
-    const renderedCancelButton = fileUploaded
+    // fileDeleted allows us to not wait for a dashboard refresh to get the asm
+    // state, which is what fileUploaded is based on
+    // then, we won't show the cancel button momentarily, which looks weird
+    const renderedCancelButton = fileUploaded && !fileDeleted
                                ? cancelButton
                                : '';
 
     return (
-        <div className='pt-card'>
-            <div className='pt-card'>
-                <div className='pt-ui-text-large'>
-                   CVR Export
+        <div>
+            <IdleDialog />
+            <div style={{ width: '500px' }}>
+                <div className='mb-default'>
+                    <FormGroup label={
+                        <span className='form-group-label pt-ui-text-large font-weight-bold'>
+                            CVR Export
+                        </span> }>
+                        <FileInput fill={ true } text={ fileName } onInputChange={ onFileChange } />
+                    </FormGroup>
                 </div>
-                <label className='pt-file-upload truncate'>
-                    <input type='file' onChange={ onFileChange } />
-                    <span className='pt-file-upload-input'>{ fileName }</span>
-                </label>
+                <FormGroup label={
+                    <span className='form-group-label pt-ui-text-large font-weight-bold'>
+                        SHA-256 hash for CVR Export
+                    </span>
+                }>
+                    <EditableText className='pt-input'
+                                    minWidth={ 600 }
+                                    maxLength={ 64 }
+                                    value={ hash }
+                                    onChange={ onHashChange } />
+                </FormGroup>
             </div>
-            <div className='pt-card'>
-                <div className='pt-ui-text-large'>
-                   SHA-256 hash for CVR Export
-                </div>
-                <label>
-                    <EditableText
-                        className='pt-input'
-                        minWidth={ 500 }
-                        maxLength={ 64 }
-                        value={ hash }
-                        onChange={ onHashChange } />
-                </label>
+            <div className='form-controls'>
+                { renderedCancelButton }
+                <Button intent={ Intent.PRIMARY } onClick={ upload }>
+                    Upload
+                </Button>
             </div>
-            { renderedCancelButton }
-            <button className='pt-button pt-intent-primary' onClick={ upload }>
-                Upload
-            </button>
+            <hr />
         </div>
     );
 };
-
 
 export default CVRExportForm;

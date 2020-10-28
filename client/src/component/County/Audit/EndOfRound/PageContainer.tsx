@@ -8,27 +8,15 @@ import countyInfoSelector from 'corla/selector/county/countyInfo';
 import currentRoundNumberSelector from 'corla/selector/county/currentRoundNumber';
 import previousRoundSelector from 'corla/selector/county/previousRound';
 
-
-function signedOff(round: Round): boolean {
-    if (!round.signatories) {
-        return false;
-    }
-
-    if (round.signatories.length < 2) {
-        return false;
-    }
-
-    return true;
-}
-
 interface ContainerProps {
     allRoundsComplete: boolean;
+    auditBoardIndex: number;
     countyInfo: CountyInfo;
     currentRoundNumber: number;
+    cvrsToAudit: JSON.CVR[];
     election: Election;
     estimatedBallotsToAudit: number;
     previousRound: Round;
-    previousRoundSignedOff: boolean;
 }
 
 class EndOfRoundPageContainer extends React.Component<ContainerProps> {
@@ -37,20 +25,20 @@ class EndOfRoundPageContainer extends React.Component<ContainerProps> {
     }
 }
 
-function select(countyState: County.AppState) {
+function mapStateToProps(countyState: County.AppState) {
+    const auditBoardIndex = countyState.auditBoardIndex || 0;
     const previousRound = previousRoundSelector(countyState);
-    const previousRoundSignedOff = previousRound && signedOff(previousRound);
 
     return {
         allRoundsComplete: allRoundsCompleteSelector(countyState),
+        auditBoardIndex,
         countyInfo: countyInfoSelector(countyState),
         currentRoundNumber: currentRoundNumberSelector(countyState),
+        cvrsToAudit: countyState.cvrsToAudit,
         election: countyState.election,
         estimatedBallotsToAudit: countyState.estimatedBallotsToAudit,
         previousRound: previousRound || {},
-        previousRoundSignedOff: previousRound ? signedOff(previousRound) : false,
     };
 }
 
-
-export default connect(select)(EndOfRoundPageContainer);
+export default connect(mapStateToProps)(EndOfRoundPageContainer);

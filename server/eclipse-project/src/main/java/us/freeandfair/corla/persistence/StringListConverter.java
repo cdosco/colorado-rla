@@ -2,16 +2,22 @@
  * Free & Fair Colorado RLA System
  * 
  * @title ColoradoRLA
+ * 
  * @created Aug 26, 2017
+ * 
  * @copyright 2017 Colorado Department of State
+ * 
  * @license SPDX-License-Identifier: AGPL-3.0-or-later
+ * 
  * @creator Daniel M. Zimmerman <dmz@freeandfair.us>
+ * 
  * @description A system to assist in conducting statewide risk-limiting audits.
  */
 
 package us.freeandfair.corla.persistence;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.AttributeConverter;
@@ -34,15 +40,18 @@ public class StringListConverter implements AttributeConverter<List<String>, Str
   /**
    * The type information for a list of String.
    */
-  private static final Type STRING_LIST = new TypeToken<List<String>>() { }.getType();
-  
+  private static final Type STRING_LIST = new TypeToken<List<String>>() {
+  }.getType();
+
   /**
-   * Our Gson instance, which does not do pretty-printing (unlike the global
-   * one defined in Main).
+   * Our Gson instance, which does not do pretty-printing (unlike the global one
+   * defined in Main).
    */
-  private static final Gson GSON = 
+  // private static final Gson GSON =
+  // new GsonBuilder().serializeNulls().create();
+  private static final Gson GSON =
       new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
-  
+
   /**
    * Converts the specified list of Strings to a database column entry.
    * 
@@ -50,7 +59,7 @@ public class StringListConverter implements AttributeConverter<List<String>, Str
    */
   @Override
   public String convertToDatabaseColumn(final List<String> the_list) {
-    return GSON.toJson(the_list); 
+    return GSON.toJson(the_list);
   }
 
   /**

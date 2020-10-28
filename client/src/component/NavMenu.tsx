@@ -1,18 +1,17 @@
 import * as React from 'react';
 
-import { Menu, MenuDivider, MenuItem } from '@blueprintjs/core';
+import { IconName, Menu, MenuDivider, MenuItem } from '@blueprintjs/core';
 import { Link } from 'react-router-dom';
-
 
 interface NavItemProps {
     path: string;
-    iconName: string;
+    icon: IconName;
     text: string;
 }
 
 const NavItem = (props: NavItemProps) => (
     <Link to={ props.path }>
-        <MenuItem iconName={ props.iconName } text={ props.text } />
+        <MenuItem icon={ props.icon } text={ props.text } />
     </Link>
 );
 
@@ -22,37 +21,36 @@ const NavMenu = () => {
             <NavItem
                 text='Home'
                 path='/'
-                iconName='pt-icon-home'
+                icon='home'
             />
             <MenuDivider />
             <NavItem
                 text='Audit'
                 path='/audit'
-                iconName='pt-icon-eye-open'
+                icon='eye-open'
             />
             <NavItem
                 text='Report'
                 path='/audit/report'
-                iconName='pt-icon-timeline-bar-chart'
+                icon='timeline-bar-chart'
             />
             <NavItem
                 text='Round'
                 path='/audit/round'
-                iconName='pt-icon-repeat'
+                icon='repeat'
             />
             <NavItem
                 text='Seed'
                 path='/audit/seed'
-                iconName='pt-icon-numerical'
+                icon='numerical'
             />
             <NavItem
                 text='Upload'
                 path='/audit/upload'
-                iconName='pt-icon-folder-close'
+                icon='folder-close'
             />
         </Menu>
     );
 };
-
 
 export default NavMenu;

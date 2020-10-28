@@ -1,32 +1,20 @@
 import * as React from 'react';
+import IdleDialog from '../../IdleDialog';
 
-import corlaDate from 'corla/date';
+import { Breadcrumb } from '@blueprintjs/core';
 
-import Nav from '../Nav';
+import DOSLayout from 'corla/component/DOSLayout';
 
 import ElectionDateForm from './ElectionDateForm';
 import ElectionTypeForm from './ElectionTypeForm';
 import PublicMeetingDateForm from './PublicMeetingDateForm';
 import RiskLimitForm from './RiskLimitForm';
+import UploadFileButton from './UploadFileButton';
 
-import setAuditInfo from 'corla/action/dos/setAuditInfo';
-
-import { timezone } from 'corla/config';
-import * as format from 'corla/format';
-
-
-const Breadcrumb = () => (
-    <ul className='pt-breadcrumbs'>
-        <li>
-            <a className='pt-breadcrumb' href='/sos'>
-                SoS
-            </a>
-        </li>
-        <li>
-            <a className='pt-breadcrumb pt-breadcrumb-current'>
-                Audit Admin
-            </a>
-        </li>
+const Breadcrumbs = () => (
+    <ul className='pt-breadcrumbs mb-default'>
+        <li><Breadcrumb href='/sos' text='SoS' /></li>
+        <li><Breadcrumb className='pt-breadcrumb-current' text='Audit Admin' /></li>
     </ul>
 );
 
@@ -35,67 +23,16 @@ function round(val: number, digits: number) {
     return Math.round(val * factor) / factor;
 }
 
-interface ReadOnlyRiskLimitProps {
-    riskLimit: number;
-}
-
-const ReadonlyRiskLimit = ({ riskLimit }: ReadOnlyRiskLimitProps) => {
-    const riskLimitPercent = round(riskLimit * 100, 2);
-
-    return (
-        <div className='pt-card'>
-            <h4>Risk limit set.</h4>
-            <div>The risk limit is set at: { riskLimitPercent }%</div>
-        </div>
-    );
-};
-
-interface NextButtonProps {
+interface SaveButtonProps {
+    disabled: boolean;
     nextPage: OnClick;
 }
 
-const NextButton = (props: NextButtonProps) => {
-    const { nextPage } = props;
-
-    return (
-        <button onClick={ nextPage } className='pt-button pt-intent-primary pt-breadcrumb'>
-            Next
-        </button>
-    );
-};
-
-interface SaveButtonProps {
-    disabled: boolean;
-    forms: DOS.Form.AuditDef.Forms;
-}
-
 const SaveButton = (props: SaveButtonProps) => {
-    const { disabled, forms } = props;
+    const { disabled, nextPage } = props;
 
     const buttonClick = () => {
-        if (!forms.electionDateForm) { return; }
-        if (!forms.electionTypeForm) { return; }
-        if (!forms.publicMeetingDateForm) { return; }
-
-        if (!forms.electionDateForm.date) { return; }
-        if (!forms.electionTypeForm.type) { return; }
-        if (!forms.publicMeetingDateForm.date) { return; }
-
-        const electionDate = corlaDate.parse(forms.electionDateForm.date);
-        const { type } = forms.electionTypeForm;
-        const publicMeetingDate = corlaDate.parse(forms.publicMeetingDateForm.date);
-
-        if (!forms.riskLimit) { return; }
-        const riskLimit = forms.riskLimit.comparisonLimit;
-
-        setAuditInfo({
-            election: {
-                date: electionDate,
-                type,
-            },
-            publicMeetingDate,
-            riskLimit,
-        });
+        nextPage();
     };
 
     return (
@@ -103,128 +40,93 @@ const SaveButton = (props: SaveButtonProps) => {
             disabled={ disabled }
             onClick={ buttonClick }
             className='pt-button pt-intent-primary'>
-            Save
+            Save & Next
         </button>
     );
 };
 
-interface ReadOnlyPageProps {
-    election: Election;
-    nextPage: OnClick;
-    publicMeetingDate: Date;
-    riskLimit: number;
-}
-
-const ReadOnlyPage = (props: ReadOnlyPageProps) => {
-    const { election, nextPage, riskLimit } = props;
-
-    const electionDate = corlaDate.format(election.date);
-    const electionType = format.electionType(election.type);
-    const publicMeetingDate = corlaDate.format(props.publicMeetingDate);
-
-    return (
-        <div>
-            <Nav />
-            <Breadcrumb />
-
-            <h2>Administer an Audit</h2>
-
-            <div className='pt-card'>
-                <h3>Election Info</h3>
-                <div className='pt-card'>
-                    <div>Election Date: { electionDate }</div>
-                    <div>Election Type: { electionType }</div>
-                    <div>Public Meeting Date: { publicMeetingDate }</div>
-                </div>
-            </div>
-
-            <div className='pt-card'>
-                <h3>Risk Limit</h3>
-                <ReadonlyRiskLimit riskLimit={ riskLimit } />
-            </div>
-            <NextButton nextPage={ nextPage } />
-        </div>
-    );
-};
-
 interface PageProps {
-    election: Election;
-    formValid: boolean;
-    nextPage: OnClick;
+    electionDate: Date;
+    isFormValid: boolean;
     publicMeetingDate: Date;
     riskLimit: number;
-    setFormValid: OnClick;
+    nextPage: OnClick;
+    type: ElectionType;
+    setElectionDate: (d: Date) => void;
+    setPublicMeetingDate: (d: Date) => void;
+    setRiskLimit: (l: number) => void;
+    setType: (t: ElectionType) => void;
+    setUploadedFiles: (fs: string[]) => void;
 }
 
 const AuditPage = (props: PageProps) => {
     const {
-        election,
-        formValid,
-        nextPage,
+        electionDate,
+        isFormValid,
         publicMeetingDate,
         riskLimit,
-        setFormValid,
+        type,
+        nextPage,
+        setElectionDate,
+        setPublicMeetingDate,
+        setRiskLimit,
+        setType,
+        setUploadedFiles,
     } = props;
 
-    const electionAndRiskLimitSet = riskLimit
-                                 && election
-                                 && election.date
-                                 && election.type;
+    const disableButton = !isFormValid;
 
-    if (electionAndRiskLimitSet) {
-        return (
-            <ReadOnlyPage
-                election={ election }
-                nextPage={ nextPage }
-                publicMeetingDate={ publicMeetingDate }
-                riskLimit={ riskLimit } />
-        );
-    }
-
-    const forms: DOS.Form.AuditDef.Forms = {};
-
-    const disableButton = !formValid;
-
-    return (
+    const main =
         <div>
-            <Nav />
-            <Breadcrumb />
+            <IdleDialog />
+            <Breadcrumbs />
 
-            <h2>Administer an Audit</h2>
+            <h2 className='page-heading'>Administer an Audit</h2>
 
-            <div className='pt-card'>
-                <h3>Election Info</h3>
-                <div><strong>Enter the date the election will take place, and the type of election.</strong></div>
-                <ElectionDateForm forms={ forms } />
-                <ElectionTypeForm forms={ forms } setFormValid={ setFormValid } />
-            </div>
-
-            <div className='pt-card'>
-                <h3>Public Meeting Date</h3>
-                <div><strong>Enter the date of the public meeting to establish the random seed.</strong></div>
-                <PublicMeetingDateForm forms={ forms } />
-            </div>
-
-            <div className='pt-card'>
-                <h3>Risk Limit</h3>
-                <div>
-                  <strong>Enter the risk limit for comparison audits as a percentage.</strong>
+            <div>
+                <h3 className='section-heading'>Election Info</h3>
+                <div className='mb-default'>Enter the date the election will take place, and the type of election.</div>
+                <div className='mb-default'>
+                    <ElectionDateForm onChange={ setElectionDate }
+                                  initDate={ electionDate } />
                 </div>
-                <RiskLimitForm forms={ forms }
-                               riskLimit={ riskLimit }
-                               setFormValid={ setFormValid } />
-                <div className='pt-card'>
-                    <span className='pt-icon pt-intent-warning pt-icon-warning-sign' />
-                    <span> </span>
-                    <strong>Once saved, this risk limit cannot be modified.</strong>
+                <div className='mb-default'>
+                    <ElectionTypeForm onChange={ setType }
+                                  initType={ type } />
                 </div>
-                <SaveButton
-                    disabled={ disableButton }
-                    forms={ forms } />
             </div>
-        </div>
-    );
+            <hr />
+
+            <div>
+                <h3 className='section-heading'>Public Meeting Date</h3>
+                <div className='mb-default'>Enter the date of the public meeting to establish the random seed.</div>
+                <PublicMeetingDateForm onChange={ setPublicMeetingDate }
+                                       initDate={ publicMeetingDate } />
+            </div>
+            <hr />
+
+            <div>
+                <h3 className='section-heading'>Risk Limit</h3>
+                <div className='mb-default'>
+                  Enter the risk limit for comparison audits as a percentage.
+                </div>
+                <RiskLimitForm onChange={ setRiskLimit }
+                               riskLimit={ riskLimit } />
+
+            </div>
+            <hr />
+            <div>
+                <h3 className='section-heading'>Contests</h3>
+                <UploadFileButton onChange={ setUploadedFiles } />
+            </div>
+
+            <div className='control-buttons mt-default'>
+              <SaveButton disabled={ disableButton }
+                          nextPage={ nextPage } />
+            </div>
+        </div>;
+
+    return <DOSLayout main={ main } />;
 };
-
 
 export default AuditPage;

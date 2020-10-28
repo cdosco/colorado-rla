@@ -2,7 +2,6 @@ import { empty } from 'corla/util';
 
 import action from '.';
 
-
 interface CreateFetchConfig {
     failType: string;
     networkFailType: string;
@@ -51,6 +50,5 @@ function createFetchAction(config: CreateFetchConfig) {
 
     return fetchAction;
 }
-
 
 export default createFetchAction;

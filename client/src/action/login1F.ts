@@ -2,7 +2,6 @@ import { endpoint } from 'corla/config';
 
 import createSubmitAction from 'corla/action/createSubmitAction';
 
-
 const url = endpoint('auth-admin');
 
 const login1F = createSubmitAction({
@@ -12,7 +11,6 @@ const login1F = createSubmitAction({
     sendType: 'LOGIN_1F_SEND',
     url,
 });
-
 
 export default (username: string, password: string) =>
     login1F({ username, password });

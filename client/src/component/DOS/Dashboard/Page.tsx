@@ -1,17 +1,13 @@
 import * as React from 'react';
+import IdleDialog from '../../IdleDialog';
 
-import * as _ from 'lodash';
+import { Tab, Tabs } from '@blueprintjs/core';
 
-import { Tooltip } from '@blueprintjs/core';
-
-import SoSNav from '../Nav';
-
-import LicenseFooter from 'corla/component/LicenseFooter';
+import DOSLayout from 'corla/component/DOSLayout';
 
 import ContestUpdates from './ContestUpdates';
 import CountyUpdates from './CountyUpdates';
 import MainContainer from './MainContainer';
-
 
 interface PageProps {
     auditStarted: boolean;
@@ -24,23 +20,26 @@ interface PageProps {
 const DOSDashboardPage = (props: PageProps) => {
     const { auditStarted, contests, countyStatus, dosState, seed } = props;
 
-    return (
+    const main =
         <div>
-            <div className='sos-home'>
-                <SoSNav />
-                <MainContainer />
-                <div className='sos-info pt-card'>
-                    <CountyUpdates auditStarted={ auditStarted }
-                                   countyStatus={ countyStatus } />
-                    <ContestUpdates contests={ contests }
-                                    seed={ seed }
-                                    dosState={ dosState } />
-                </div>
-            </div>
-            <LicenseFooter />
-        </div>
-    );
-};
+            <IdleDialog />
+            <MainContainer />
+            <Tabs className='mt-default'
+                  id='updates'
+                  large>
+                <Tab id='county-updates'
+                     title='County Updates'
+                     panel={ <CountyUpdates auditStarted={ auditStarted }
+                                            countyStatus={ countyStatus } /> } />
+                <Tab id='contest-updates'
+                     title='Contest Updates'
+                     panel={ <ContestUpdates contests={ contests }
+                                             seed={ seed }
+                                             dosState={ dosState } /> } />
+            </Tabs>
+        </div>;
 
+    return <DOSLayout main={ main } />;
+};
 
 export default DOSDashboardPage;

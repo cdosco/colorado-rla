@@ -1,9 +1,9 @@
 function canRenderReport(state: County.AppState): boolean {
-    const asmState = state.asm.county;
+    const countyAsmState = state.asm.county;
 
-    return asmState === 'COUNTY_AUDIT_UNDERWAY'
-        || asmState === 'COUNTY_AUDIT_COMPLETE';
+    return (countyAsmState === 'COUNTY_AUDIT_UNDERWAY'
+        || countyAsmState === 'COUNTY_AUDIT_COMPLETE')
+        && (typeof state.auditBoardCount !== 'number');
 }
-
 
 export default canRenderReport;

@@ -2,9 +2,7 @@ import { endpoint } from 'corla/config';
 
 import createSubmitAction from 'corla/action/createSubmitAction';
 
-
 const url = endpoint('start-audit-round');
-
 
 export default createSubmitAction({
     failType: 'PUBLISH_BALLOTS_TO_AUDIT_FAIL',

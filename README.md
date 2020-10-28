@@ -63,5 +63,7 @@ Contributors
 * Daniel Zimmerman (Principled Computer Scientist) Principal author of
   RLA Tool Server
 * Mike Prasad (CDOS Developer/Architect) Authored enhancements to RLA Tool Client and Server
+* Rich Helton (CDOS Developer) Authored enhancements to RLA Tool Client and Server
+* Dogan Cibiceli (CDOS Developer) Authored enhancements to RLA Tool Client and Server
 
 More information about our team members [is available](docs/70_team.md).

@@ -1,6 +1,3 @@
-import * as _ from 'lodash';
-
-
 const UPLOADED_STATES = [
     'CVRS_OK',
     'BALLOT_MANIFEST_AND_CVRS_OK',
@@ -9,8 +6,7 @@ const UPLOADED_STATES = [
 ];
 
 function cvrExportUploaded(state: County.AppState): boolean {
-    return _.includes(UPLOADED_STATES, state.asm.county);
+    return !!state.cvrExport;
 }
-
 
 export default cvrExportUploaded;

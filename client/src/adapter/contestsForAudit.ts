@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
 
-
 export function format(formData: DOS.Form.SelectContests.FormData): JSON.ContestForAudit[] {
     const data: JSON.ContestForAudit[] = [];
 

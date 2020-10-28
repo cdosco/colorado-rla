@@ -1,12 +1,12 @@
-import * as _ from 'lodash';
-
 import countyDashboardRefreshOk from './county/dashboardRefreshOk';
+import countyDeleteFileOk from './county/deleteFileOK';
 import fetchAuditBoardASMStateOk from './county/fetchAuditBoardASMStateOk';
 import countyFetchContestsOk from './county/fetchContestsOk';
 import fetchCountyASMStateOk from './county/fetchCountyASMStateOk';
 import countyFetchCvrOk from './county/fetchCvrOk';
 import fetchCvrsToAuditOk from './county/fetchCvrsToAuditOk';
 import countyLoginOk from './county/loginOk';
+import reAuditCvr from './county/reAuditCvr';
 import updateAcvrForm from './county/updateAcvrForm';
 import uploadAcvrOk from './county/uploadAcvrOk';
 import uploadBallotManifestOk from './county/uploadBallotManifestOk';
@@ -16,12 +16,12 @@ import uploadingCvrExport from './county/uploadingCvrExport';
 
 import dosContestFetchOk from './dos/contestFetchOk';
 import dosDashboardRefreshOk from './dos/dashboardRefreshOk';
+import dosDeleteFileOk from './dos/deleteFileOk';
 import fetchDOSASMStateOk from './dos/fetchDOSASMStateOk';
 import dosLoginOk from './dos/loginOk';
 import uploadRandomSeedOk from './dos/uploadRandomSeedOk';
 
 import login1FOk from './login1FOk';
-
 
 // Default state is preloaded in the module `corla/store`.
 export default function root(state: AppState, action: Action.App) {
@@ -89,6 +89,14 @@ export default function root(state: AppState, action: Action.App) {
         return fetchDOSASMStateOk(state as DOS.AppState, action);
     }
 
+    case 'DELETE_FILE_OK': {
+        return countyDeleteFileOk(state as County.AppState, action);
+    }
+
+    case 'DOS_DELETE_FILE_OK': {
+        return dosDeleteFileOk(state as DOS.AppState, action);
+    }
+
     case 'IMPORT_CVR_EXPORT_OK': {
         const nextState = { ...state } as County.AppState;
 
@@ -101,6 +109,63 @@ export default function root(state: AppState, action: Action.App) {
 
     case 'LOGIN_1F_OK': {
         return login1FOk(state as LoginAppState, action);
+    }
+
+    case 'RE_AUDIT_CVR': {
+        return reAuditCvr(state as County.AppState, action);
+    }
+
+    case 'SET_AUDIT_BOARD': {
+        const nextState = { ...state } as County.AppState;
+
+        const { auditBoardIndex } = action.data;
+
+        nextState.auditBoardIndex = auditBoardIndex;
+
+        return nextState;
+    }
+
+    case 'SET_AUDIT_INFO': {
+        const nextState = { ...state } as DOS.AppState;
+
+        nextState.settingAuditInfo = true;
+        delete nextState.canonicalContests;
+        delete nextState.canonicalChoices;
+
+        return nextState;
+    }
+
+    case 'SET_AUDIT_INFO_FAIL':
+    case 'SET_AUDIT_INFO_NETWORK_FAIL':
+    case 'SET_AUDIT_INFO_OK': {
+        const nextState = { ...state } as DOS.AppState;
+
+        nextState.settingAuditInfo = false;
+        // XXX: Done to force component to wait for contests to load after audit
+        // info was set.
+        nextState.contests = [];
+
+        return nextState;
+    }
+
+    case 'STANDARDIZE_CONTESTS_FOR_AUDIT': {
+        const nextState = { ...state } as DOS.AppState;
+
+        nextState.standardizingContests = true;
+        
+        return nextState;
+    }
+   
+    case 'STANDARDIZE_CONTESTS_FOR_AUDIT_NETWORK_FAIL':
+    case 'STANDARDIZE_CONTESTS_FOR_AUDIT_OK': {
+        const nextState = { ...state } as DOS.AppState;
+
+        nextState.standardizingContests = false;
+        // XXX: Done to force component to wait for choices to load after
+        // contest standardization was done.
+        nextState.contests = [];
+
+        return nextState;
     }
 
     case 'UPDATE_ACVR_FORM': {
@@ -161,6 +226,14 @@ export default function root(state: AppState, action: Action.App) {
         const nextState = { ...state } as County.AppState;
 
         nextState.cvrImportPending.alerted = true;
+
+        return nextState;
+    }
+
+    case 'FINAL_REVIEW_COMPLETE': {
+        const nextState = { ...state } as County.AppState;
+
+        nextState.finalReview.complete = true;
 
         return nextState;
     }

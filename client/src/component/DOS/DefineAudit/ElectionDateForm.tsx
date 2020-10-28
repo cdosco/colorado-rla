@@ -1,19 +1,21 @@
 import * as React from 'react';
+import IdleDialog from '../../IdleDialog';
 
-import * as moment from 'moment-timezone';
+import { DateInput, IDateFormatProps } from '@blueprintjs/datetime';
 
-import { DateInput } from '@blueprintjs/datetime';
+import { formatLocalDate, parseLocalDate } from 'corla/date';
 
-import { timezone } from 'corla/config';
-import corlaDate from 'corla/date';
-
-
-function defaultElectionDate(): string {
-    return moment.tz(timezone).format('YYYY-MM-DD');
+function blueprintFormatter(): IDateFormatProps {
+    return {
+        formatDate: d => d ? formatLocalDate(d) : formatLocalDate(new Date()),
+        parseDate: s => parseLocalDate(s),
+        placeholder: formatLocalDate(new Date()),
+    };
 }
 
 interface FormProps {
-    forms: DOS.Form.AuditDef.Forms;
+    onChange: (d: Date) => void;
+    initDate: Date;
 }
 
 interface FormState {
@@ -21,31 +23,35 @@ interface FormState {
 }
 
 class ElectionDateForm extends React.Component<FormProps, FormState> {
-    public state = { date: defaultElectionDate() };
+    constructor(props: FormProps) {
+        super(props);
+
+        this.state = {
+            date: formatLocalDate(props.initDate),
+        };
+
+        this.onDateChange = this.onDateChange.bind(this);
+    }
 
     public render() {
-        this.props.forms.electionDateForm = this.state;
-
-        const date = this.localDate();
-
         return (
-            <div className='pt-card'>
-                <div>Election Date</div>
-                <DateInput value={ date } onChange={ this.onDateChange } />
+            <div>
+                <IdleDialog />
+                <div className='mb-default'>Election Date</div>
+                <DateInput { ...blueprintFormatter() }
+                           onChange={ this.onDateChange }
+                           value={ parseLocalDate(this.state.date) } />
             </div>
         );
     }
 
-    private onDateChange = (dateObj: Date) => {
-        const date = corlaDate.format(dateObj);
+    private onDateChange(selectedDate: Date) {
+        this.setState({
+            date: formatLocalDate(selectedDate),
+        });
 
-        this.setState({ date });
-    }
-
-    private localDate(): Date {
-        return moment(this.state.date).toDate();
+        this.props.onChange(selectedDate);
     }
 }
-
 
 export default ElectionDateForm;

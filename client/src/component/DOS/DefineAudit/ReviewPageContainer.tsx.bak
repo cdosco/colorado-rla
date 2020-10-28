@@ -1,0 +1,58 @@
+import * as React from 'react';
+import { Redirect } from 'react-router-dom';
+
+import { History } from 'history';
+
+import withDOSState from 'corla/component/withDOSState';
+import withSync from 'corla/component/withSync';
+
+import ReviewPage from './ReviewPage';
+import resetAudit from 'corla/action/dos/resetAudit';
+
+import publishBallotsToAudit from 'corla/action/dos/publishBallotsToAudit';
+
+interface ContainerProps {
+    history: History;
+    dosState: DOS.AppState;
+}
+
+class ReviewPageContainer extends React.Component<ContainerProps> {
+    public render() {
+        const { history, dosState } = this.props;
+
+        if (!dosState) {
+            return <div />;
+        }
+
+        if (!dosState.asm) {
+            return <div />;
+        }
+
+        if (dosState.asm === 'DOS_AUDIT_ONGOING') {
+            return <Redirect to='/sos' />;
+        }
+
+       const previousPage = () => {
+			resetAudit();
+            history.push('/sos/audit');
+        };
+        const props = {
+            back:previousPage,
+            dosState,
+            publishBallotsToAudit,
+            saveAndDone: () => history.push('/sos'),
+        };
+
+        return <ReviewPage { ...props } />;
+    }
+}
+
+function mapStateToProps(dosState: DOS.AppState) {
+    return { dosState };
+}
+
+export default withSync(
+    withDOSState(ReviewPageContainer),
+    'DOS_DEFINE_AUDIT_REVIEW_SYNC',
+    mapStateToProps,
+);
