@@ -141,7 +141,7 @@ const TableRow = (props: TableRowProps) => {
                 <form>
                     <select className='max-width-select'
                             onChange={ changeHandler }
-                            value={ _.get(formData, `${row.contestId }.["${row.choiceName}"]`, '') }>
+                            value={ _.get(formData, `${row.contestId }.['${row.choiceName}']`, '') }>
                         <option key='' value=''>-- No change --</option>
                         {
                             _.map(choices, (choice, idx) => {
@@ -196,7 +196,7 @@ class Page extends React.Component<PageProps, PageState> {
                 const defaultChoice = defaultCanonicalName(choiceName, choices);
 
                 if (!_.isEmpty(defaultChoice)) {
-                    _.set(formData, `${row.contestId}.["${row.choiceName}"]`, defaultChoice);                }
+                    _.set(formData, `${row.contestId}.['${row.choiceName}']`, defaultChoice);                }
             });
 
             this.setState({ formData: formData, firstTime: false });

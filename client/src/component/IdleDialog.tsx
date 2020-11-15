@@ -78,7 +78,6 @@ export default class IdleDialog extends React.Component {
           onIdle={this.handleOnIdle}
           timeout={this.timeout}
         />
-      // Logout if nothing selected  
        <IdleTimer
           ref={ref => { this.idleTimer2 = ref }}
           onActive={this.handleOnActive2}

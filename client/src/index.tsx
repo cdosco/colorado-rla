@@ -7,7 +7,6 @@ import { RootContainer } from './component/RootContainer';
 import rootSaga from './saga/root';
 import { sagaMiddleware, store } from './store';
 
-
 const rootEl = document.getElementById('root');
 
 const render = (NextRootContainer: any) => {

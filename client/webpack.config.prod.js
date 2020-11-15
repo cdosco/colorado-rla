@@ -1,7 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
 
-
 module.exports = {
     entry: [
         './src/index.tsx',
@@ -41,8 +40,13 @@ module.exports = {
                 loaders: [
                     'awesome-typescript-loader'
                 ],
-                exclude: path.join(__dirname, 'node_modules'),
-                include: path.join(__dirname, 'src'),
+                exclude: /node_modules/,
+                include: /src/,
+            },
+            {
+                test: /\.js$/,
+                loader: 'babel-loader',
+                include: /node_modules\/string-similarity/,
             },
         ],
     },

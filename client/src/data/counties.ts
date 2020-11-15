@@ -69,5 +69,4 @@ const counties: Counties = {
     64: { id: 64, name: 'Broomfield' },
 };
 
-
 export default counties;

@@ -1,121 +1,486 @@
+/*
+ * Colorado RLA CSS
+ *
+ * Uses SMACSS to organize rules: http://smacss.com/book/
+ *
+ * If you see `pt-`-prefixed rules, those are overrides for BlueprintJS.
+ */
+
+/*
+ * @light-gray1: #CED9E0
+ * @light-gray5: #F5F8FA
+ *
+ * @gray1: #5C7080
+ *
+ * @dark-gray5: #394B59
+ *
+ * @green3: #0F9960
+ * @red3: #DB3737
+ */
+
+/*
+ * Base styles
+ */
+
 body {
-    font-family: "Arial", sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 }
 
-div{
-  white-space: pre-wrap;
+h1, h2, h3, h4, h5, h6 {
+  color: #394B59;
 }
 
-.login-page {
-    margin: 0 auto;
-    width: 50%;
+/*
+ * Text utilities
+ */
+
+.font-weight-bold {
+  font-weight: bold;
 }
 
-.county-root {
-    display: flex;
-    flex-direction: column;
+.text-right {
+  text-align: right;
 }
 
-.county-root .info {
-  #  display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
+/*
+ * Display utilities
+ */
+
+ .block {
+   display: block;
+ }
+
+/*
+ * Divider / Horizontal rule
+ */
+
+hr {
+  margin: 40px 0;
 }
 
-.county-root .contest-info {
-    flex: 1;
+/*
+ * Headings
+ */
+
+.page-heading {
+  font-size: 21px;
+  margin-bottom: 50px;
 }
 
-.county-root .county-info {
-    flex: 1;
+.section-heading {
+  font-size: 18px;
 }
 
-.sos-home {
-    display: flex;
-    flex-direction: column;
+/*
+ * Layout utilities
+ */
+
+/* margin-top, default spacing */
+.mt-default {
+  margin-top: 20px;
 }
 
-.sos-home .sos-info {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
+/* margin-right, default spacing */
+.mr-default {
+  margin-right: 20px;
 }
 
-.sos-home .sos-info .contest-info {
-    flex: 1;
+/* margin-bottom, default spacing */
+.mb-default {
+  margin-bottom: 20px;
 }
 
-.sos-home .sos-info .county-info {
-    flex: 1;
+/* margin-left, default spacing */
+.ml-default {
+  margin-left: 20px;
 }
 
-.audit{
-    margin-top: 10px;	
+/*
+ * Layout
+ */
+
+.l-wrapper {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
 }
 
-.truncate {
-  width: 500px;
-  white-space: nowrap;
+.l-nav {
+  width: 100%;
+}
+
+.l-main {
+  flex-grow: 1;
+
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: 20px;
+  padding-right: 15px;
+  padding-left: 15px;
+  width: 100%;
+}
+
+@media (min-width: 1020px) {
+  .l-main {
+    max-width: 1020px;
+  }
+}
+
+.l-footer {
+  border-top: 1px solid #CED9E0;
+  margin-top: 60px;
+  padding: 15px;
+}
+
+/*
+ * Modules
+ */
+
+/* Forms */
+
+.form-group-label {
+  margin-bottom: 10px;
+  display: block;
+}
+
+.form-controls {
+  margin-top: 30px;
+}
+
+.form-container-heading {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.max-width-select {
+  max-width: 450px;
+}
+
+/* Custom table */
+
+.pt-html-table.rla-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.pt-html-table.rla-table thead th {
+  color: #5C7080;
+  font-size: 10px;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+/* Spaced-out button group */
+.pt-button-group.rla-spaced > .pt-button:not(:last-child) {
+  margin-right: 10px;
+}
+
+/* Status column larger by default when extra space is available */
+@media (min-width: 1020px) {
+  .pt-html-table.rla-table thead th.status-col {
+    width: 300px;
+  }
+}
+
+.pt-html-table.rla-table thead th .rla-table-sortable-wrapper {
+  display: inline-flex;
+  align-items: center;
+}
+
+.pt-html-table.rla-table tbody td.ellipsize,
+.pt-html-table.rla-table tbody td.ellipsize > *,
+.pt-html-table.rla-table tbody td.ellipsize .status-indicator-text {
   overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
 }
 
-.pt-breadcrumb {
-    margin: 10px; 
+.pt-html-table.rla-table tbody td.ellipsize:hover,
+.pt-html-table.rla-table tbody td.ellipsize:hover > *,
+.pt-html-table.rla-table tbody td.ellipsize:hover .status-indicator-text {
+  background-color: inherit;
+  overflow: visible;
+  z-index: 1;
 }
 
-.pt-table {
-    border-spacing: 0;
-    font-size: 16px !important;
-}
-
-.pt-file-upload-input::after {
-    background-color: #137cbd;
-    background-image: none;
-	color: #ffffff;
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 100%;
-    margin-left: -1px;
-    border-radius: 3px;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    width: 70px;
-    height: 30px;
-    padding: 0 10px;
-    text-align: center;
-    line-height: 30px;
-    content: "Browse"; }
-
-	  
-  .pt-file-upload-input:hover::after {
-    box-shadow: inset 0 0 0 1px rgba(16, 22, 26, 0.2), inset 0 -1px 0 rgba(16, 22, 26, 0.1);
-    background-clip: padding-box;
-    background-color: #137cbd; }	  
-	
-h2 {
-    padding: 10px;
-}
-
-h3 {
-    padding: 10px;
-}
-
-.pt-ui-text-large {
-  line-height: 1.25;
-  font-size: 16px; 
+.pt-html-table.rla-table thead th.is-sorted,
+.pt-html-table.rla-table tbody td.is-sorted {
   font-weight: bold;
+}
+
+.pt-html-table.pt-html-table-striped.rla-table tbody tr:nth-child(even) td {
+  background-color: white;
+}
+
+.pt-html-table.pt-html-table-striped.rla-table tbody tr:nth-child(odd) td {
+  background-color: #F5F8FA;
+}
+
+/* BlueprintJS callout overrides */
+
+.rla-callout-default {
+  background-color: #F5F8FA;
+}
+
+/* Login */
+
+.login {
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 100px;
+}
+
+.login h1 {
+  margin-bottom: 30px;
+  font-size: 21px;
+}
+
+/* License */
+
+.license {
+  max-width: 550px;
+}
+
+/* Uploaded file component */
+
+.uploaded-file {
+  max-width: 750px;
+}
+
+dl.uploaded-file-details {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  overflow: visible;
+}
+
+dl.uploaded-file-details dt {
+  flex: 0 0 20%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+dl.uploaded-file-details dd {
+  flex: 0 0 80%;
+  margin-left: auto;
+  margin-top: 10px;
+  text-align: left;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.uploaded-file-footer {
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.uploaded-file-footer-status p:last-child {
+  margin-bottom: 0px;
+}
+
+.uploaded-file-footer-status.pt-callout {
+  background-color: transparent;
+  width: auto;
+}
+
+.uploaded-file-popover .pt-popover-content {
+  padding: 20px;
+}
+
+.uploaded-file-popover-target {
+  cursor: pointer;
+  text-decoration: underline dashed;
+  margin-left: 5px;
+}
+
+/*** State Dashboard ***/
+
+/*
+ * Indicators
+ *
+ * Usage: Apply .status-indicator-group to the parent element. Inside that
+ * group, place a .status-indicator and a .status-indicator-text next to each
+ * other, along with the appropriate modifier class on the .status-indicator to
+ * give it a color. Placing the indicator on either side of the text will result
+ * in the appropriate spacing.
+ */
+
+.status-indicator-group {
+  display: flex;
+  align-items: center;
+}
+
+.status-indicator {
+  display: inline-block;
+  flex-shrink: 0;
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+}
+
+.status-indicator.status-indicator-error {
+  background-color: #DB3737;
+}
+
+.status-indicator.status-indicator-in-progress {
+  background-color: #0F9960;
+}
+
+.status-indicator-group .status-indicator-text + .status-indicator,
+.status-indicator-group .status-indicator + .status-indicator-text {
+  margin-left: 10px;
+}
+
+/*
+ * Status filter
+ */
+
+.status-filter-content .pt-popover-content {
+  min-width: 250px;
+  padding: 15px;
+}
+
+.status-filter-content hr {
+  border-bottom: 2px solid #CED9E0;
+  margin: 15px -15px 0 -15px;
+}
+
+.status-filter-content-body {
+  margin-top: 20px;
+}
+
+.status-filter-content-header h1, .status-filter-content-header h2,
+.status-filter-content-header h3, .status-filter-content-header h4,
+.status-filter-content-header h5, .status-filter-content-header h6 {
+  color: #5C7080;
+  font-size: 16px;
+}
+
+.status-filter-content-actions {
+  display: flex;
+  margin-top: 20px;
+  justify-content: space-between;
+}
+
+.status-filter-content-actions button {
+  background-color: inherit;
+  border: 2px solid #CED9E0;
+  color: #5C7080;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px;
+}
+
+/* TODO: Remove when the .pt-control override elsewhere is made more specific. */
+.status-filter-content .pt-popover-content .pt-control {
+  padding-left: 26px;
+}
+
+.rla-table-sortable-wrapper .status-filter-wrapper {
+  margin-left: 10px;
+}
+
+.status-filter-target button {
+  background-color: #F5F8FA;
+  border: 1px solid #CED9E0;
+  padding: 0 3px;
+}
+
+/*
+ * Audit definition display
+ *
+ * Shown after the audit is defined on the state dashboard.
+ */
+
+.state-dashboard-audit-definition {
+  display: flex;
+  padding: 20px;
+}
+
+.state-dashboard-audit-definition dl {
+  color: #5C7080;
+  margin: 0 0 0 auto;
+}
+
+.state-dashboard-audit-definition dt {
+  font-weight: bold;
+  display: inline-block;
+  margin-left: 20px;
+}
+
+.state-dashboard-audit-definition dt:after {
+  content: ":";
+}
+
+.state-dashboard-audit-definition dd {
+  display: inline-block;
+  margin-left: 5px;
+}
+
+/*
+ * Round information
+ *
+ * Styles the information for the current round on the state dashboard page.
+ */
+
+.state-dashboard-round {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background-color: #F5F8FA;
+  padding: 20px;
+}
+
+.state-dashboard-round-summary {
+  color: #5C7080;
+}
+
+/*
+ * Update tables
+ *
+ * Styles the content surrounding the county and contest update tables.
+ */
+
+.state-dashboard-updates-preface {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.state-dashboard-updates-preface-description{
+  color: #5C7080;
+  flex-basis: 50%;
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+.state-dashboard-updates-preface-search {
+  flex-basis: 250px;
+}
+
+.state-dashboard-updates .pt-html-table {
+  margin-top: 20px;
+}
+
+/*******/
+
+.audit {
+    margin-top: 10px;
+}
+
+.pt-html-table {
+    font-size: 16px !important;
 }
 
 .rla-page {
     margin: 0 auto;
     max-width: 800px;
-}
-
-.rla-page .pt-card {
-    margin-bottom: 5px;
-    margin-top: 5px;
 }
 
 .rla-page table {
@@ -126,6 +491,11 @@ h3 {
     width: fit-content;
     width: -moz-fit-content;
     width: -webkit-fit-content;
+}
+
+/* TODO: Remove when the .pt-control override elsewhere is made more specific. */
+.rla-radio-group .pt-control {
+    padding-left: 26px;
 }
 
 .rla-contest-choice {
@@ -147,17 +517,348 @@ th.rla-county-contest-info {
     width: 50%;
 }
 
-.rla-license-footer {
+.rla-file-upload-progress {
+    width: 50%;
+}
+
+.import-file {
+  display: none;
+}
+
+/* Audit Stage two-column layout ------------------------------ */
+
+.audit-page-container {
+    padding-top: 40px;
+    color: #333;
+}
+
+.audit-page-title {
+    font-size: 36px;
+    font-weight: 200;
+    padding: 0;
+}
+
+.audit-page-subtitle {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.ballot-number {
+    font-size: 24px;
+    background-color: #08589A;
+    color: white;
+    font-weight: 200;
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 2px;
+}
+
+.col-layout {
+    display: grid;
+    grid-template-areas: "col1 col2";
+    grid-template-columns: 200px 1fr;
+    margin-top: 40px;
+}
+
+.col1 {
+    margin-right:20px;
+}
+
+.row1 {
+    border-bottom: solid 3px #eee;
+    padding-bottom: 25px;
+}
+
+.button-container {
+    display: flex;
+    margin: 40px 0;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.button-container-left {
+    justify-content: flex-start;
+}
+
+.not-found-header {
+    font-size: 18px;
+    margin-bottom: 20px;
+    white-space: normal;
+}
+
+.not-found-copy {
+    margin-bottom: 20px;
+}
+
+.contest-row {
+    background-color: #f1f1f1;
+    padding: 20px;
+    border-radius: 2px;
+    margin-bottom: 30px;
+}
+
+.contest-info {
+    margin-bottom: 20px;
+    border-bottom: solid 1px #ddd;
+    padding-bottom: 20px;
+}
+
+.contest-name {
+    font-size: 21px;
+}
+
+.num-of-choices {
+    color: #666;
+}
+
+.contest-choice-grid {
+    display: grid;
+    grid-column-gap: 1rem;
+    grid-template-columns: 1fr 1fr 1fr;
+    margin-bottom: 20px;
+}
+
+.contest-choice-review-grid {
+    display: grid;
+    grid-column-gap: 1rem;
+    grid-template-columns: 2fr 1fr;
+}
+
+.contest-choice-review {
+    display: grid;
+    grid-column-gap: 1rem;
+    grid-template-columns: 1fr 1fr;
+}
+
+.contest-choice-review .rla-contest-choice {
+    margin-bottom: 20px;
+}
+
+.edit-button {
+    padding-right: 40px;
+    text-align: right;
+    color: #333;
+}
+
+.comments-container {
+    border-top: solid 1px #ddd;
+    margin-top: 20px;
+    padding-top: 20px;
+}
+
+/* hacking my way around blueprint's custom checkbox styles */
+
+/* TODO: Make this override more specific. */
+.pt-control {
+    padding: 0;
+}
+
+.rla-contest-choice {
     width: 100%;
 }
 
-.rla-license {
-    margin: 0 auto;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    width: 500px;
+.contest-choice-selection .pt-control-indicator {
+    display: none;
 }
 
-.rla-file-upload-progress {
-    width: 50%;
+.contest-choice-selection .pt-disabled .choice-name,
+.contest-choice-selection .pt-disabled .choice-name:hover {
+    background-color: #f1f1f1;
+    color: #888;
+    border: solid 1px #dddddd;
+}
+
+.choice-name {
+    padding: 10px;
+    color: #333;
+    border: solid 1px #dddddd;
+    background: #fff;
+    border-radius: 2px;
+    display: block;
+    text-align:center;
+    min-height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    /* Prevent issues with text selection interfering with button clicks */
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.choice-name:hover {
+    border: solid 1px #08589A;
+}
+
+.no-choice {
+    background-color: #e8e8e8;
+    border: solid 1px #ccc;
+}
+
+.no-choice:hover {
+    border: solid 1px #aaaaaa;
+}
+
+.contest-choice-selection input:checked ~ .choice-name {
+    background-color: #08589A;
+    border: solid 1px #08589A;
+    color: white;
+}
+
+.contest-choice-selection.contest-choice-review .choice-name {
+    background-color: #08589A;
+    border: solid 1px #08589A;
+    color: white;
+}
+
+.current-ballot-info {
+    border-right: solid 3px #eeeeee;
+}
+
+.sidebar-heading {
+    font-size: 16px;
+    padding: 0;
+    line-height: 1.3;
+    margin-bottom: 20px;
+}
+
+.sidebar-instructions {
+    position: sticky;
+    top: 20px;
+}
+
+/*
+ * Details of the currently-displayed ballot during auditing.
+ */
+
+.current-ballot-stats li {
+  margin-bottom: 10px;
+}
+
+.current-ballot-stats .current-ballot-stats-label:after {
+  content: ":";
+}
+
+.current-ballot-stats .current-ballot-stats-value {
+  font-size: 16px;
+  font-weight: bold;
+  margin-left: 5px;
+}
+
+.main-col-instructions {
+    margin-bottom: 20px;
+}
+
+.comment-box .pt-editable-content {
+    color: #666;
+}
+
+.comment-box {
+    cursor: pointer;
+}
+
+.comment-box-label {
+    display: flex;
+}
+
+.comment-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    fill: #666;
+}
+
+.comment-box-field {
+    flex-basis: 100%;
+}
+
+/* accordion ------------------------------ */
+
+.sidebar-accordion {
+    border-bottom: solid 1px #eee;
+}
+
+.accordion-item{
+    display: none;
+}
+
+.accordion-item + .accordion-item-label {
+    cursor: pointer;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: center;
+    border-top: solid 1px #eee;
+    padding: 5px 10px 5px 5px;
+}
+
+.accordion-item-label::before {
+    content: '\203a';
+    font-size: 18pt;
+    transition: transform .15s ease-in-out;
+    color: rgba(0,0,0,.54);
+}
+
+.accordion-item-label:hover {
+    background-color: #eee;
+}
+
+.accordion-item:checked + .accordion-item-label::before{
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+
+.accordion-item-content {
+    transform: scaleY(0);
+    transform-origin: top;
+    max-height: 0px;
+    overflow: hidden;
+    position: relative;
+    font-weight: normal;
+    font-size: 14px;
+    transition: all 0.3s ease-in-out;
+}
+
+.accordion-item-content p {
+    padding-top: 10px;
+    padding-bottom: 20px;
+}
+
+.blank-vote, .no-consensus {
+    font-size: 2em;
+    padding-right: 20px;
+    vertical-align: middle;
+}
+
+.review-edit-selection {
+    padding-right: 10px;
+}
+
+/* shouldn't need this */
+#item1:checked ~ #content1,
+#item2:checked ~ #content2,
+#item3:checked ~ #content3,
+#item4:checked ~ #content4,
+#item5:checked ~ #content5 {
+    max-height: 350px;
+    transform: scaleY(1);
+}
+
+.uploaded-file-name {
+  padding: 10px 20px;
+  display: inline-block;
+  background-color: #efefef;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-radius: 2px;
+  font-size: 16px;
+}
+
+.dropzone {
+  cursor: pointer;
 }

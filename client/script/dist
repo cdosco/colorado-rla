@@ -17,8 +17,24 @@ cp index.prod.html dist/index.html
 # Copy app stylesheet.
 cp screen.css dist/
 
-# Copy library stylesheets and assets.
+### Copy dependent assets
+
+## Normalize
 cp node_modules/normalize.css/normalize.css dist/
-cp -r node_modules/@blueprintjs/core/dist/blueprint.css dist/
-cp -r node_modules/@blueprintjs/datetime/dist/blueprint-datetime.css dist/
-cp -r node_modules/@blueprintjs/core/resources dist/
+
+## Blueprint - Core
+mkdir -p dist/blueprintjs/core/lib/css
+cp -a node_modules/@blueprintjs/core/lib/css/blueprint.css \
+  dist/blueprintjs/core/lib/css/
+
+## Blueprint - Icons
+mkdir -p dist/blueprintjs/icons/lib/css
+cp -a node_modules/@blueprintjs/icons/lib/css/blueprint-icons.css \
+  dist/blueprintjs/icons/lib/css/
+cp -a node_modules/@blueprintjs/icons/resources \
+  dist/blueprintjs/icons/
+
+## Blueprint - Date/Time
+mkdir -p dist/blueprintjs/datetime/lib/css
+cp -a node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css \
+  dist/blueprintjs/datetime/lib/css/

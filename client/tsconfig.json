@@ -7,6 +7,7 @@
 
         "outDir": "./dist/",
         "sourceMap": true,
+        "skipLibCheck": true,
 
         // Strictness options
         "allowUnreachableCode": false,
@@ -27,19 +28,10 @@
         "target": "es5",
         "jsx": "react"
     },
-
-    "files": [
-        "./index.d.ts",
-        "./action.d.ts",
-        "./county.d.ts",
-        "./dos.d.ts",
-        "./global.d.ts",
-        "./json.d.ts",
-        "./vendor.d.ts",
-        "./node_modules/@types/webpack-env/index.d.ts"
-    ],
-
     "include": [
         "./src/**/*"
+    ],
+    "exclude": [
+        "node_modules"
     ]
 }
