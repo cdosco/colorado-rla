@@ -80,7 +80,7 @@ public class CVRContestInfo implements Serializable {
   /**
    * The choices for this contest.
    */
-  @Column(name = "choices", columnDefinition = "character varying (255)")
+  @Column(name = "choices", columnDefinition = "character varying (1024)")
   @Convert(converter = StringListConverter.class)
   private List<String> my_choices = new ArrayList<>();
 

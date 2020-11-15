@@ -42,7 +42,7 @@ public class WorkbookWriter {
   /**
    * one workbook to hold multiple sheets, another way to say Excel file, xlsx
    **/
-  private final Workbook workbook;
+  private final Workbook        workbook;
 
   /** regular style **/
   private final CellStyle regStyle;
@@ -82,12 +82,7 @@ public class WorkbookWriter {
    */
   public void addSheet(final String sheetname, final List<List<String>> rows) {
     Sheet sheet = null;
-    try {
-      sheet = workbook.createSheet(sheetname);
-    }catch(Exception ex) {
-      Main.LOGGER.error(ex.getMessage());
-      return;
-    }
+    sheet = workbook.createSheet(sheetname);
 
     for (int i = 0; i < rows.size(); i++) {
       final Row poiRow = sheet.createRow(i);

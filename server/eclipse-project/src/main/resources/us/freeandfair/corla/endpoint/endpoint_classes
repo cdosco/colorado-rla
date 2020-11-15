@@ -1,6 +1,7 @@
 us.freeandfair.corla.endpoint.ACVRDownload
 us.freeandfair.corla.endpoint.ACVRDownloadByCounty
 us.freeandfair.corla.endpoint.ACVRUpload
+us.freeandfair.corla.endpoint.AppInfoEndpoint
 us.freeandfair.corla.endpoint.AuditBoardDashboardASMState
 us.freeandfair.corla.endpoint.AuditBoardSignIn
 us.freeandfair.corla.endpoint.AuditBoardSignOut
@@ -24,6 +25,7 @@ us.freeandfair.corla.endpoint.CVRDownloadByID
 us.freeandfair.corla.endpoint.CVRExportImport
 us.freeandfair.corla.endpoint.CVRToAuditDownload
 us.freeandfair.corla.endpoint.CVRToAuditList
+us.freeandfair.corla.endpoint.DeleteFile
 us.freeandfair.corla.endpoint.DoSDashboardASMState
 us.freeandfair.corla.endpoint.DoSDashboardRefresh
 us.freeandfair.corla.endpoint.FileDownload
@@ -32,10 +34,13 @@ us.freeandfair.corla.endpoint.IndicateHandCount
 us.freeandfair.corla.endpoint.IntermediateAuditReport
 us.freeandfair.corla.endpoint.PublishAuditReport
 us.freeandfair.corla.endpoint.ResetDatabase
+us.freeandfair.corla.endpoint.ResetAudit
 us.freeandfair.corla.endpoint.ReportBallotsToAudit
 us.freeandfair.corla.endpoint.RiskLimitForComparisonAudits
 us.freeandfair.corla.endpoint.Root
 us.freeandfair.corla.endpoint.SelectContestsForAudit
+us.freeandfair.corla.endpoint.SetAuditBoardCount
+us.freeandfair.corla.endpoint.SetContestNames
 us.freeandfair.corla.endpoint.SetRandomSeed
 us.freeandfair.corla.endpoint.SignOffAuditRound
 us.freeandfair.corla.endpoint.StartAuditRound

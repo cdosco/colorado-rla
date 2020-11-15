@@ -17,15 +17,7 @@
 package us.freeandfair.corla.query;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.OptionalLong;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -206,7 +198,7 @@ public final class CastVoteRecordQueries {
   /**
    * Counts the CastVoteRecord objects with the specified county and type.
    *
-   * @param the_county_id The county.
+   * @param the_county The county.
    * @param the_type The type.
    * @return the count, empty if the query could not be completed successfully.
    */
@@ -303,7 +295,7 @@ public final class CastVoteRecordQueries {
    *
    * @param the_county_id The county.
    * @param the_type The type.
-   * @param the_sequence_number.
+   * @param the_sequence_number The sequence number.
    * @return the matching CastVoteRecord object, or null if no objects match or
    *         the query fails.
    */
@@ -608,11 +600,25 @@ public final class CastVoteRecordQueries {
     final Session s = Persistence.currentSession();
     final Query q =
         s.createQuery("select acvr from CastVoteRecord acvr " +
-                      " where acvr.cvrId in (:cvrIds))" + " order by acvr.my_timestamp asc");
+                      " where acvr.cvrId in (:cvrIds)" + " order by acvr.my_timestamp asc");
 
-    q.setParameter("cvrIds", contestCVRIds);
+    Spliterator<Long> split = contestCVRIds.stream().spliterator();
 
-    return q.getResultList();
+    final List<CastVoteRecord> results = new ArrayList<>(contestCVRIds.size());
+
+    while (true) {
+      List<Long> chunk = new ArrayList<>(_chunkOf1000);
+      for (int i = 0; i < _chunkOf1000 && split.tryAdvance(chunk::add); i++)
+        ;
+      if (chunk.isEmpty())
+        break;
+      q.setParameter("cvrIds", chunk);
+      final List<CastVoteRecord> tempResults = q.getResultList();
+      results.addAll(tempResults);
+    }
+
+
+    return results;
   }
 
   /**
@@ -622,12 +628,25 @@ public final class CastVoteRecordQueries {
   public static List<CastVoteRecord> resultsReport(final List<Long> contestCVRIds) {
     final Session s = Persistence.currentSession();
     final Query q = s.createQuery("select acvr from CastVoteRecord acvr " +
-                                  " where acvr.cvrId in (:cvrIds))" +
-                                  " and acvr.record_type != 'REAUDITED' ");
+                                  " where acvr.cvrId in (:cvrIds)" +
+                                  " and acvr.my_record_type != 'REAUDITED' ");
 
-    q.setParameter("cvrIds", contestCVRIds);
+    Spliterator<Long> split = contestCVRIds.stream().spliterator();
 
-    return q.getResultList();
+    final List<CastVoteRecord> results = new ArrayList<>(contestCVRIds.size());
+
+    while (true) {
+      List<Long> chunk = new ArrayList<>(_chunkOf1000);
+      for (int i = 0; i < _chunkOf1000 && split.tryAdvance(chunk::add); i++)
+        ;
+      if (chunk.isEmpty())
+        break;
+      q.setParameter("cvrIds", chunk);
+      final List<CastVoteRecord> tempResults = q.getResultList();
+      results.addAll(tempResults);
+    }
+
+    return results;
   }
 
   /** Utility function **/

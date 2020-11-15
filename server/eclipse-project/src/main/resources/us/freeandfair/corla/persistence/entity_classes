@@ -4,7 +4,9 @@ us.freeandfair.corla.model.AuditInvestigationReportInfo
 us.freeandfair.corla.model.BallotManifestInfo
 us.freeandfair.corla.model.CastVoteRecord
 us.freeandfair.corla.model.Choice
+us.freeandfair.corla.model.ComparisonAudit
 us.freeandfair.corla.model.Contest
+us.freeandfair.corla.model.ContestResult
 us.freeandfair.corla.model.ContestToAudit
 us.freeandfair.corla.model.County
 us.freeandfair.corla.model.CountyContestComparisonAudit
@@ -16,4 +18,5 @@ us.freeandfair.corla.model.DoSDashboard
 us.freeandfair.corla.model.Elector
 us.freeandfair.corla.model.IntermediateAuditReportInfo
 us.freeandfair.corla.model.LogEntry
+us.freeandfair.corla.model.Tribute
 us.freeandfair.corla.model.UploadedFile
