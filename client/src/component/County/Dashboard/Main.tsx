@@ -109,7 +109,7 @@ const Main = (props: MainProps) => {
     } else if (auditComplete) {
         directions = 'You have successfully completed the Risk-Limiting Audit! Print all pages of your final audit'
             + ' report. Have the judges and county clerk sign the last page of the report and email it to'
-            + ' RLA@sos.state.co.us. You can now proceed to canvass!';
+            + ' RLA@coloradosos.gov. You can now proceed to canvass!';
     }
 
     const fileUploadContainer = auditStarted

@@ -93,7 +93,7 @@ interface TableBodyProps {
 }
 
 const TableBody = (props: TableBodyProps) => {
-    const { contests, formData, rows, updateFormData } = props;
+    const {formData, rows, updateFormData } = props;
 
     const key = (row: DOS.Form.StandardizeChoices.Row) =>
         row.countyName + ',' + row.contestName + ',' + row.choiceName;
@@ -136,14 +136,16 @@ const TableRow = (props: TableRowProps) => {
         <tr>
             <td>{ row.countyName }</td>
             <td>{ row.contestName }</td>
-            <td>{ row.choiceName }</td>
+            <td>{ row.choiceName } </td>
             <td>
                 <form>
                     <select className='max-width-select'
                             onChange={ changeHandler }
-                            value={ _.get(formData, `${row.contestId }.['${row.choiceName}']`, '') }>
+                            value={_.defaultTo(_.find(formData[row.contestId],
+                                o => o.existingChoice === row.choiceName), {newChoice: ''})
+                                .newChoice}>
                         <option key='' value=''>-- No change --</option>
-                        {
+                       {
                             _.map(choices, (choice, idx) => {
                                 return <option key={ idx } value={ choice }>{ choice }</option>;
                             })
@@ -173,8 +175,8 @@ class Page extends React.Component<PageProps, PageState> {
         super(props);
 
         this.state = {
+            firstTime: true,
             formData: {},
-            firstTime: true
         };
 
         this.updateFormData = this.updateFormData.bind(this);
@@ -191,15 +193,31 @@ class Page extends React.Component<PageProps, PageState> {
             const formData: DOS.Form.StandardizeChoices.FormData = {};
 
             _.forEach(rows, row => {
-                const { choiceName, choices } = row;
+                const {contestId, choiceName, choices} = row;
 
                 const defaultChoice = defaultCanonicalName(choiceName, choices);
-
                 if (!_.isEmpty(defaultChoice)) {
-                    _.set(formData, `${row.contestId}.['${row.choiceName}']`, defaultChoice);                }
+                    const tempObject = {
+                        existingChoice: choiceName,
+                        newChoice: defaultChoice,
+                    };
+                    if ( _.isEmpty(formData[contestId])) {
+                        formData[contestId] = [];
+                    }
+                    formData[contestId].push(tempObject);
+                } else {
+                    const tempObject = {
+                        existingChoice: choiceName,
+                        newChoice: '',
+                    };
+                    if ( _.isEmpty(formData[contestId])) {
+                        formData[contestId] = [];
+                    }
+                    formData[contestId].push(tempObject);    
+                }
             });
 
-            this.setState({ formData: formData, firstTime: false });
+            this.setState({ formData, firstTime: false });
         }
     }
 
@@ -275,20 +293,17 @@ class Page extends React.Component<PageProps, PageState> {
         const formData = this.state.formData;
 
         if ('' === newChoiceName) {
-            delete formData[contestId][currentChoiceName];
+            formData[contestId] = formData[contestId].filter(obj => obj.existingChoice !== currentChoiceName);
 
             if (_.isEmpty(formData[contestId])) {
                 delete formData[contestId];
             }
         } else {
-            _.merge(formData, {
-                [contestId]: {
-                    [currentChoiceName]: newChoiceName,
-                },
-            });
-        }
-
-        this.setState({ formData: formData, firstTime: false });
+            }
+            const formRows = formData[contestId].filter(obj => obj.existingChoice === currentChoiceName);
+            formRows[0].newChoice = newChoiceName ;
+  
+        this.setState({ formData, firstTime: false });
     }
 }
 

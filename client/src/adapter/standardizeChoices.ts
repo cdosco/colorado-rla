@@ -11,10 +11,10 @@ export function format(
         })
         .map((contest: Contest) => {
             return {
-                choices: _.map(data[contest.id], (newName, currentName) => {
+                choices: _.map(data[contest.id], newFormRow => {
                     return {
-                        newName,
-                        oldName: currentName,
+                        newName: newFormRow.newChoice,
+                        oldName: newFormRow.existingChoice,
                     };
                 }),
                 contestId: contest.id,

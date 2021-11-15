@@ -8,7 +8,7 @@ const customStyles = {
   content : {
     bottom                : 'auto',
     left                  : '50%',
-    marginRight           : '-50%',
+    marginRight           : '50%',
     right                 : 'auto',
     top                   : '50%',
     transform             : 'translate(-50%, -50%)'
@@ -16,7 +16,7 @@ const customStyles = {
 };
  
 
-export default class IdleDialog extends React.Component {
+export default class IdleDialogState extends React.Component {
   idleTimer  : IdleTimer | null
   idleTimerDialog : IdleTimer | null
   timeout : number
@@ -31,11 +31,11 @@ export default class IdleDialog extends React.Component {
 
   constructor(props: IdleTimerProps) {
     super(props)
-   // ten minutes 
-   this.timeout = 600000  // 300000 - 5 minutes, 60000  - 1 minute 
-   // 30 minutes -- this.timeout = 3600000  // 300000 - 5 minutes, 60000  - 1 minute 
+   // ten minutes -- this.timeout = 600000  // 300000 - 5 minutes, 60000  - 1 minute 
+   // 30 minutes 
+   this.timeout = 3600000  // 300000 - 5 minutes, 60000  - 1 minute 
  
-   // Testing one minute-- this.timeout = 60000  // 300000 - 5 minutes, 60000  - 1 minute 
+   // Testing one minute --  this.timeout = 60000  // 300000 - 5 minutes, 60000  - 1 minute 
     this.timeoutDialog =  120000 //60000 // 60000  - 1 minute 
     this.idleTimer = null
     this.idleTimerDialog = null

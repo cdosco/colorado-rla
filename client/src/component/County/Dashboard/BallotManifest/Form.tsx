@@ -1,5 +1,5 @@
 import * as React from 'react';
-import IdleDialog from '../../../IdleDialog';
+
 
 import {
     Button,
@@ -52,7 +52,6 @@ const BallotManifestForm = (props: FormProps) => {
 
     return (
         <div>
-            <IdleDialog />
             <div style={{ width: '500px' }}>
                 <div className='mb-default'>
                     <FormGroup

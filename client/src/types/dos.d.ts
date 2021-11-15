@@ -124,10 +124,12 @@ declare namespace DOS {
 
         namespace StandardizeChoices {
             interface FormData {
-                [contestId: number]: {
-                    // Map current choice name to new choice name
-                    [choiceName: string]: string;
-                };
+                [contestId: number]: FormRow[];
+            }
+
+            interface FormRow {
+                existingChoice: string;
+                newChoice: string;
             }
 
             interface Row {

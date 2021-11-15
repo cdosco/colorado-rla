@@ -1,5 +1,5 @@
 import * as React from 'react';
-import IdleDialog from '../../IdleDialog';
+import IdleDialog from '../../IdleDialogState';
 
 import { Tab, Tabs } from '@blueprintjs/core';
 

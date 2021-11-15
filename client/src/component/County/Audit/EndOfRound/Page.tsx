@@ -100,27 +100,27 @@ const EndOfRoundPage = (props: PageProps) => {
 
             <Card>
                 <h3>
-                    Please complete this audit round by entering your names in
-                    the fields below, making the following certification, and
-                    selecting Submit. By entering their name and selecting
-                    Submit below, each audit board member individually certifies
-                    that they:
+                    Please complete this audit round by entering your names in the 
+                    fields below, making the following certification, and selecting Submit. 
+                    By entering their name and selecting Submit below, each audit 
+                    board member individually certifies for audit round <span>{ currentRoundNumber }</span> of the <span>{ countyName }</span> County <span>{ electionDate } </span> <span>{ electionType }</span> that they:
                 </h3>
 
                 <ul>
                     <li>
-                        Personally located and retrieved, or personally observed a county staff
-                        member locate and retrieve, each paper ballot randomly selected for your
-                        assigned portion of audit round <span>{ currentRoundNumber }</span> of
-                        the <span>{ countyName }</span> County <span>{ electionDate } </span>
-                        <span>{ electionType }</span>.
+                        Retrieved or observed the retrieval of each ballot assigned to your audit board; Or
                     </li>
                     <li>
-                        Personally examined each such randomly selected ballot;
+                        Verified that each ballot provided to your audit board was retrieved by, 
+                        or under the oversight of, another bipartisan audit board;
                     </li>
                     <li>
-                        Accurately entered the voter markings contained in each ballot contest
-                        on each such randomly selected ballot, to the best of his or her ability;
+                        Personally examined each randomly selected ballot assigned to their audit board;
+                    </li>
+                    <li>
+                        Accurately entered or observed entry of the voter markings contained
+                        in each ballot contest on each randomly selected ballot for their 
+                        audit board, to the best of their ability;
                     </li>
                     <li>
                         Where applicable, resolved ambiguous markings, over votes and write-in

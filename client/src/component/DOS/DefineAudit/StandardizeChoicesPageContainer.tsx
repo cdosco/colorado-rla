@@ -8,8 +8,8 @@ import { History } from 'history';
 
 import standardizeChoices from 'corla/action/dos/standardizeChoices';
 
-import StandardizeChoicesPage from './StandardizeChoicesPage';
 import resetAudit from 'corla/action/dos/resetAudit';
+import StandardizeChoicesPage from './StandardizeChoicesPage';
 
 import withDOSState from 'corla/component/withDOSState';
 import withPoll from 'corla/component/withPoll';
@@ -20,7 +20,7 @@ import counties from 'corla/data/counties';
 const NEXT_PATH = '/sos/audit/select-contests';
 
 // The previous URL path to transition to.
-const PREV_PATH = '/sos/audit';
+// const PREV_PATH = '/sos/audit';
 
 /**
  * Denormalize the DOS.Contests data structure from the application state into
@@ -77,18 +77,18 @@ const PageContainer = (props: Props) => {
     } = props;
 
     const nextPage = (data: DOS.Form.StandardizeChoices.FormData) => {
-        standardizeChoices(contests, data).then(function(r) {
+        standardizeChoices(contests, data).then(r => {
             // use the result here
             if (r.ok) {
                 history.push(NEXT_PATH);
             }
         })
-        .catch(function(reason){
-            console.log("standardizeChoices error in submitAction " + reason);
+        .catch(reason => {
+            alert('standardizeChoices error in submitAction ' + reason);
         });
     };
 
-    const previousPage = async() => {
+    const previousPage = async () => {
         await resetAudit();
         history.push('/sos/audit');
     };

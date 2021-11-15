@@ -2,7 +2,6 @@ import { empty } from 'corla/util';
 
 import action from '.';
 
-
 type CreateDataFn<S, R> = (sent: S, received: R) => Action.SubmitData<S, R>;
 
 interface CreateSubmitConfig<S, R> {
@@ -39,7 +38,6 @@ function createSubmitAction<S, R>(config: CreateSubmitConfig<S, R>) {
         };
 
         try {
-            console.log("Fetching " + url);
             const r = await fetch(url, init);
 
             if (!r.ok) {

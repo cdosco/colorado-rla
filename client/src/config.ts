@@ -13,7 +13,7 @@ export const endpoint = (path: string) => `${endpointPrefix}/${path}`;
 
 export const projectUrl = 'https://github.com/democracyworks/ColoradoRLA';
 
-export const helpEmail = 'voting.systems@sos.state.co.us';
+export const helpEmail = 'voting.systems@coloradosos.gov';
 
 export const helpTel = '877-436-5677';
 
@@ -29,4 +29,4 @@ export const defaultOkTimeout = 10000;
 export const defaultDangerTimeout = 0;
 export const defaultWarningTimeout = 0;
 
-export const version = '2.3.50';
+export const version = '2.3.60';
