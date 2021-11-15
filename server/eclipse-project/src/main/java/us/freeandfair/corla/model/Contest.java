@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CollectionTable;
@@ -279,6 +280,12 @@ public class Contest implements PersistentEntity, Serializable {
            my_description + ", choices=" + choices() + 
            ", votes_allowed=" + my_votes_allowed + "]";
   }
+  
+  public String shortToString() {
+    return "Contest [name=" + my_name + ", choices=" + 
+          choices().stream().map(c->c.shortToString()).collect(Collectors.joining()) + "]";
+  }
+  
   
   /**
    * Compare this object with another for equivalence.

@@ -30,6 +30,7 @@ import javax.persistence.PersistenceException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -44,6 +45,7 @@ import us.freeandfair.corla.model.CountyContestResult;
 import us.freeandfair.corla.model.CountyDashboard;
 import us.freeandfair.corla.persistence.Persistence;
 import us.freeandfair.corla.query.CountyContestResultQueries;
+import us.freeandfair.corla.util.DBExceptionUtil;
 import us.freeandfair.corla.util.ExponentialBackoffHelper;
 
 /**
@@ -337,11 +339,12 @@ public class DominionCVRExportParser {
    * @param votesAllowed The table of votes allowed values.
    * @param choiceCounts The table of contest choice counts.
    */
-  private void addContests(final CSVRecord choiceLine,
+  private Result addContests(final CSVRecord choiceLine,
                            final CSVRecord explanationLine,
                            final List<String> contestNames,
                            final Map<String, Integer> votesAllowed,
                            final Map<String, Integer> choiceCounts) {
+    final Result result = new Result();
     int index = my_first_contest_column;
     int contest_count = 0;
 
@@ -355,7 +358,7 @@ public class DominionCVRExportParser {
         final String explanation = explanationLine.get(index).trim();
         // "Write-in" is a fictitious candidate that denotes the beginning of
         // the list of qualified write-in candidates
-        final boolean isFictitious = "Write-in".equals(choice);
+        final boolean isFictitious = "Write-in".equalsIgnoreCase(choice);
         choices.add(new Choice(choice, explanation, isWriteIn, isFictitious));
         if (isFictitious) {
           // consider all subsequent choices in this contest to be qualified
@@ -376,12 +379,20 @@ public class DominionCVRExportParser {
       LOGGER.debug(String.format("[addContests: county=%s, contest=%s", my_county.name(), c));
 
       contest_count = contest_count + 1;
-      Persistence.saveOrUpdate(c);
-      final CountyContestResult r =
-          CountyContestResultQueries.matching(my_county, c);
-      my_contests.add(c);
-      my_results.add(r);
+      try {
+        Persistence.saveOrUpdate(c);
+        final CountyContestResult r = CountyContestResultQueries.matching(my_county, c);
+        my_contests.add(c);
+        my_results.add(r);
+      } catch (PersistenceException pe) {
+        result.success = false;
+        result.errorMessage = StringUtils.abbreviate(DBExceptionUtil.getConstraintFailureReason(pe),250);
+        result.errorRowContent = StringUtils.abbreviate("Error adding " + c.shortToString(),250) ;
+        return result ;
+      }
     }
+    result.success = true ;
+    return result ;
   }
 
   /**
@@ -706,8 +717,12 @@ public class DominionCVRExportParser {
     if (headerResult.success == false) {
       return headerResult;
     } else {
-      addContests(choice_line, expl_line, contest_names,
-                  contest_votes_allowed, contest_choice_counts);
+      Result addContestResult =addContests(choice_line, expl_line, contest_names,
+                                           contest_votes_allowed, contest_choice_counts);
+      if (!addContestResult.success) {
+        return addContestResult ;
+      }
+        
 
       // subsequent lines contain cast vote records
       while (records.hasNext()) {

@@ -122,6 +122,7 @@ public class SetContestNames extends AbstractDoSDashboardEndpoint {
       LOGGER.error("unable to re-map contest names", e);
       serverError(response, "unable to re-map contest names");
     } catch (final JsonParseException e) {
+      LOGGER.error("malformed contest mapping", e);
       badDataContents(response, "malformed contest mapping");
     }
     return my_endpoint_result.get();

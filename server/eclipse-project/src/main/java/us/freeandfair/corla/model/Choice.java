@@ -124,6 +124,10 @@ public class Choice implements Serializable {
            my_description + "]";
   }
 
+  public String shortToString() {
+    return "[" + my_name + "],";
+  }
+  
   /**
    * Compare this object with another for equivalence.
    * 

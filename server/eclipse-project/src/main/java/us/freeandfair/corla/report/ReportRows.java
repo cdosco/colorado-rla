@@ -388,13 +388,7 @@ public class ReportRows {
       // general info
       row.put("Contest", ca.contestResult().getContestName());
       row.put("targeted", yesNo(ca.isTargeted()));
-      if ( ca.contestResult() != null && ca.contestResult().getWinners() != null
-          && !ca.contestResult().getWinners().isEmpty()) {
-        row.put("Winner", toString(ca.contestResult().getWinners().iterator().next()));
-      } else {
-        row.put("Winner", "No Winner");
-      }
-      
+      row.put("Winner", toString(ca.contestResult().getWinners().iterator().next()));
       row.put("Risk Limit met?", yesNo(riskLimitMet(ca.getRiskLimit(), riskMsmnt)));
       row.put("Risk measurement %", sigFig(percentage(riskMsmnt), 1).toString());
       row.put("Audit Risk Limit %", sigFig(percentage(ca.getRiskLimit()),1).toString());

@@ -22,7 +22,7 @@ SELECT
    cvr_a.timestamp,
    cai.cvr_id
 
-FROM 
+FROM
    cvr_audit_info AS cai
  LEFT JOIN
    cvr_contest_info AS cci

@@ -87,6 +87,7 @@ public final class CountyContestResultQueries {
     } catch (final PersistenceException e) {
       e.printStackTrace(System.out);
       Main.LOGGER.error("could not query database for contest results");
+      throw e;
     }
     if (result == null) {
       Main.LOGGER.debug("found no contest results matching + " + the_contest);

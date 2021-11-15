@@ -20,6 +20,7 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
 
@@ -241,7 +242,10 @@ public final class CastVoteRecordQueries {
     newChoice = GSON.toJson(newChoice);
     newChoice = (newChoice.substring(0, newChoice.length() - 1));
     newChoice = (newChoice.substring(1, newChoice.length()));
-    final Query q = s
+
+    String escapedOldChoice = oldChoice.replaceAll("\"", Matcher.quoteReplacement("\\\\\""));
+
+       final Query q = s
         // this will only fix the first match, which is what we want, because
         // this
         // will make it possible to fix mistakes that create duplicates
@@ -252,8 +256,8 @@ public final class CastVoteRecordQueries {
                            " where county_id = :county_id " +
                            " and contest_id = :contest_id " +
                            " and choices like :oldChoiceLike")
-        .setParameter("oldChoice", oldChoice)
-        .setParameter("oldChoiceLike", "%" + oldChoice + "%")
+        .setParameter("oldChoice", escapedOldChoice)
+        .setParameter("oldChoiceLike", "%" + escapedOldChoice + "%")
         .setParameter("newChoice", newChoice)
         .setParameter("county_id", countyId)
         .setParameter("contest_id", contestId);

@@ -6,6 +6,8 @@ import org.apache.log4j.Logger;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import javax.persistence.PersistenceException;
+
 import us.freeandfair.corla.Main;
 import us.freeandfair.corla.asm.ASMEvent.CountyDashboardEvent;
 import us.freeandfair.corla.asm.CountyDashboardASM;
@@ -114,6 +116,11 @@ public class ImportFileController implements Runnable {
   public void error(final Result result) {
     LOGGER.debug("error("+ result.errorMessage + ")");
 
+    Persistence.rollbackTransaction(); 
+    Persistence.beginTransaction();
+
+    // if we are here because of a persistence exception.. 
+    // commit will throw another so rollback what's been done
     // record the result
     commit();
     this.uploadedFileDTO.setStatus(FileStatus.FAILED.toString());
