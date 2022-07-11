@@ -131,6 +131,7 @@ class CVRExportFormContainer extends React.Component<ContainerProps, ContainerSt
                            fileDeleted={ this.state.fileDeleted }
                            form={ this.state.form }
                            onFileChange={ this.onFileChange }
+                           handleOnDrop={ this.handleOnDrop }
                            onHashChange={ this.onHashChange }
                            upload={ this.upload } />
         );
@@ -152,6 +153,13 @@ class CVRExportFormContainer extends React.Component<ContainerProps, ContainerSt
         this.setState(s);
     }
 
+    private handleOnDrop = (files:any) => {
+        const s = { ...this.state };
+
+        s.form.file = files[0];
+        this.setState(s);
+    }
+    
     private onHashChange = (hash: string) => {
         const s = { ...this.state };
 

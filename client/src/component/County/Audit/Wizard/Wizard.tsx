@@ -16,10 +16,12 @@ interface WizardProps {
     currentBallotNumber?: number;
     reviewingBallotId?: number;
     totalBallotsForBoard?: number;
+
 }
 
 interface WizardState {
     stage: WizardStage;
+
 }
 
 class CountyAuditWizard extends React.Component<WizardProps, WizardState> {
@@ -27,16 +29,18 @@ class CountyAuditWizard extends React.Component<WizardProps, WizardState> {
         super(props);
 
         if (props.reviewingBallotId != null) {
-            this.state = { stage: 'ballot-audit' };
+            this.state = { stage: 'ballot-audit'};
+
 
             window.scrollTo(0, 0);
         } else {
-            this.state = { stage: 'list' };
+            this.state = { stage: 'list'};
         }
+
     }
 
     public render() {
-        const { nextStage, prevStage } = this;
+        const { nextStage, prevStage  } = this;
 
         const props = {
             countyState: this.props.countyState,
@@ -45,6 +49,8 @@ class CountyAuditWizard extends React.Component<WizardProps, WizardState> {
             prevStage,
             totalBallotsForBoard: this.props.totalBallotsForBoard,
         };
+
+       
 
         switch (this.state.stage) {
             case 'ballot-audit':
@@ -81,11 +87,11 @@ class CountyAuditWizard extends React.Component<WizardProps, WizardState> {
         // tslint:enable
 
         const stage = t[this.state.stage];
-
-        this.setState({ stage });
+       this.setState({ stage });
 
         window.scrollTo(0, 0);
     }
+  
 }
 
 export default CountyAuditWizard;

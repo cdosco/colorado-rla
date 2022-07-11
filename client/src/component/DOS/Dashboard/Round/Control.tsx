@@ -30,7 +30,6 @@ class Control extends React.Component<ControlProps, ControlState>  {
                 this.setState({ roundStartSent: false });
             })
                 .catch(function(reason) {
-                    alert('waitForNextRound error in submitAction ' + reason);
                     this.setState({ roundStartSent: false });
                 });
         };

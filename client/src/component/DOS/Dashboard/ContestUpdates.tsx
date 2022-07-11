@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import * as _ from 'lodash';
-import IdleDialog from '../../IdleDialog';
+import IdleDialog from '../../IdleDialogState';
 
 import { Button, Icon, InputGroup, Intent, Tooltip } from '@blueprintjs/core';
 

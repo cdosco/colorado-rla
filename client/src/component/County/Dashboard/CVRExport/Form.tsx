@@ -4,10 +4,11 @@ import IdleDialog from '../../../IdleDialog';
 import {
     Button,
     EditableText,
-    FileInput,
     FormGroup,
     Intent,
 } from '@blueprintjs/core';
+
+import Dropzone from 'react-dropzone'
 
 interface FormProps {
     disableReupload: OnClick;
@@ -18,10 +19,24 @@ interface FormProps {
         hash: string;
     };
     onFileChange: OnClick;
+    handleOnDrop: OnClick;
     onHashChange: OnClick;
     upload: OnClick;
 }
 
+const dropStyle = {
+    border: '2px dashed rgb(102, 102, 102)',
+    borderRadius: '5px',
+    marginBottom: '10px',
+    padding: '1em',
+    width: '500px',
+};
+
+const activeStyle = {
+    backgroundColor: 'rgb(245, 245, 245)',
+    border: '2px solid green',
+    borderRadius: '5px',
+};
 const CVRExportForm = (props: FormProps) => {
     const {
         disableReupload,
@@ -29,6 +44,7 @@ const CVRExportForm = (props: FormProps) => {
         fileDeleted,
         form,
         onFileChange,
+        handleOnDrop,
         onHashChange,
         upload,
     } = props;
@@ -55,12 +71,33 @@ const CVRExportForm = (props: FormProps) => {
             <IdleDialog />
             <div style={{ width: '500px' }}>
                 <div className='mb-default'>
-                    <FormGroup label={
-                        <span className='form-group-label pt-ui-text-large font-weight-bold'>
-                            CVR Export
-                        </span> }>
-                        <FileInput fill={ true } text={ fileName } onInputChange={ onFileChange } />
-                    </FormGroup>
+                    <span className='form-group-label pt-ui-text-large font-weight-bold'>
+                        CVR Export
+                    </span>
+                    <div className='dropzone'>  
+                    <Dropzone onDrop={ handleOnDrop }
+                              activeStyle={ activeStyle }
+                              multiple={ false }
+                              style={ dropStyle }>
+                        <div>
+                            <strong>
+                            Click here or drag-and-drop your Cast Vote Record .csv file to upload it                            </strong>
+
+                        </div>
+                    </Dropzone>
+                    </div>
+                    <FormGroup>
+                        <aside>
+                        <div className='import-file'
+                         style={ file ? { display: 'inline' } : {} }>
+
+                         <span className='uploaded-file-name' key={ fileName }>
+                                        { fileName } { file? "(" + file.size + "bytes.)" :'' } 
+                        </span>
+                  
+                        </div>
+                        </aside>
+                   </FormGroup>
                 </div>
                 <FormGroup label={
                     <span className='form-group-label pt-ui-text-large font-weight-bold'>

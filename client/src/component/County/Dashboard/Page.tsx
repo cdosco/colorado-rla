@@ -1,4 +1,5 @@
 import * as React from 'react';
+import IdleDialog from '../../IdleDialog';
 
 import { History } from 'history';
 
@@ -34,7 +35,9 @@ const CountyDashboardPage = (props: PageProps) => {
     const auditBoardButtonDisabled = !canSignIn;
 
     const main =
-        <Main auditComplete={ auditComplete }
+    <div>
+    <IdleDialog />
+    <Main auditComplete={ auditComplete }
               auditStarted={ auditStarted }
               canRenderReport={ canRenderReport }
               countyState={ countyState }
@@ -42,7 +45,7 @@ const CountyDashboardPage = (props: PageProps) => {
               history={ history }
               name={ countyInfo.name }
               auditBoardButtonDisabled={ auditBoardButtonDisabled } />;
-
+    </div>;
     return <CountyLayout main={ main } />;
 };
 

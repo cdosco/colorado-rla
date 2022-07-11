@@ -206,15 +206,15 @@ class Page extends React.Component<PageProps, PageState> {
                     }
                     formData[contestId].push(tempObject);
                 } else {
-                    const tempObject = {
-                        existingChoice: choiceName,
-                        newChoice: '',
-                    };
-                    if ( _.isEmpty(formData[contestId])) {
-                        formData[contestId] = [];
-                    }
-                    formData[contestId].push(tempObject);    
-                }
+                     const tempObject = {
+                         existingChoice: choiceName,
+                         newChoice: choiceName,
+                     };
+                     if ( _.isEmpty(formData[contestId])) {
+                         formData[contestId] = [];
+                     }
+                     formData[contestId].push(tempObject);    
+                 }
             });
 
             this.setState({ formData, firstTime: false });

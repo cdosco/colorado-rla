@@ -11,6 +11,7 @@ interface StateProps {
     currentBallot?: County.CurrentBallot;
     isReAuditing: boolean;
     updateBallotMarks: OnClick;
+ 
 }
 
 interface OwnProps {
@@ -20,6 +21,7 @@ interface OwnProps {
     totalBallotsForBoard?: number;
     nextStage: OnClick;
     prevStage: OnClick;
+
 }
 
 type Props = StateProps & OwnProps;
@@ -28,12 +30,13 @@ const Component = (props: Props) => <BallotAuditStage { ...props } />;
 
 const mapStateToProps = (countyState: County.AppState): StateProps => {
     const { currentBallot } = countyState;
-
+ 
     const comment = countyState.finalReview.comment;
 
     const updateBallotMarks = (data: any) =>
         action('UPDATE_ACVR_FORM', data);
 
+ 
     return {
         auditBoardIndex: countyState.auditBoardIndex || 0,
         comment,

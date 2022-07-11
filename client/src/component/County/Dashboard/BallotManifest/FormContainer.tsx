@@ -115,6 +115,7 @@ class BallotManifestFormContainer extends React.Component<ContainerProps, Contai
                                 fileDeleted={ this.state.fileDeleted }
                                 form={ this.state.form }
                                 onFileChange={ this.onFileChange }
+                                handleOnDrop= {this.handleOnDrop}
                                 onHashChange={ this.onHashChange }
                                 upload={ this.upload } />
         );
@@ -133,6 +134,13 @@ class BallotManifestFormContainer extends React.Component<ContainerProps, Contai
 
         s.form.file = e.target.files[0];
 
+        this.setState(s);
+    }
+
+    private handleOnDrop = (files:any) => {
+        const s = { ...this.state };
+
+        s.form.file = files[0];
         this.setState(s);
     }
 

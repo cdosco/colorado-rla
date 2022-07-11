@@ -29,4 +29,4 @@ export const defaultOkTimeout = 10000;
 export const defaultDangerTimeout = 0;
 export const defaultWarningTimeout = 0;
 
-export const version = '2.3.60';
+export const version = '2.3.70.1';

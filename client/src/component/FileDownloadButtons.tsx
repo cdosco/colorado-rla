@@ -70,6 +70,7 @@ class UploadedFileCard extends React.Component<UploadedFileProps, UploadedFileSt
                              icon='tick-circle'>
                         File successfully uploaded
                     </Callout>
+                    { file.timestamp.toLocaleString()  + '\xa0'}
                     { downloadButton }
                     { deleteButton }
                 </Callout>

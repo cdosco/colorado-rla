@@ -6,11 +6,11 @@ import logout from 'corla/action/logout';
 
 const customStyles = {
   content : {
-    bottom                : 'auto',
-    left                  : '50%',
-    marginRight           : '-50%',
-    right                 : 'auto',
     top                   : '50%',
+    left                  : '50%',
+    right                 : 'auto',
+    bottom                : 'auto',
+    marginRight           : '-50%',
     transform             : 'translate(-50%, -50%)'
   }
 };
@@ -18,31 +18,27 @@ const customStyles = {
 
 export default class IdleDialog extends React.Component {
   idleTimer  : IdleTimer | null
-  idleTimerDialog : IdleTimer | null
+  idleTimer2 : IdleTimer | null
   timeout : number
-  timeoutDialog : number
+  timeout2 : number
   state : { 
     remaining: number
     isIdle: boolean
-    isIdleDialog: boolean
+    isIdle2: boolean
     lastActive: Date
     elapsed: number
   }
 
   constructor(props: IdleTimerProps) {
     super(props)
-   // ten minutes 
-   this.timeout = 600000  // 300000 - 5 minutes, 60000  - 1 minute 
-   // 30 minutes -- this.timeout = 3600000  // 300000 - 5 minutes, 60000  - 1 minute 
- 
-   // Testing one minute-- this.timeout = 60000  // 300000 - 5 minutes, 60000  - 1 minute 
-    this.timeoutDialog =  120000 //60000 // 60000  - 1 minute 
+    this.timeout = 600000  // 300000 - 5 minutes, 60000  - 1 minute 
+    this.timeout2 =  660000 //60000 // 60000  - 1 minute 
     this.idleTimer = null
-    this.idleTimerDialog = null
+    this.idleTimer2 = null
     this.state = {
       remaining: this.timeout,
       isIdle: false,
-      isIdleDialog: false,
+      isIdle2: false,
       lastActive: new Date(),
       elapsed: 0
     }
@@ -53,8 +49,8 @@ export default class IdleDialog extends React.Component {
     this.handleReset = this.handleReset.bind(this)
     this.handlePause = this.handlePause.bind(this)
     this.handleResume = this.handleResume.bind(this)
-    this.handleOnActiveDialog = this.handleOnActiveDialog.bind(this)
-    this.handleOnIdleDialog = this.handleOnIdleDialog.bind(this)
+    this.handleOnActive2 = this.handleOnActive2.bind(this)
+    this.handleOnIdle2 = this.handleOnIdle2.bind(this)
   }
 
   componentDidMount() {
@@ -83,10 +79,10 @@ export default class IdleDialog extends React.Component {
           timeout={this.timeout}
         />
        <IdleTimer
-          ref={ref => { this.idleTimerDialog = ref }}
-          onActive={this.handleOnActiveDialog}
-          onIdle={this.handleOnIdleDialog}
-          timeout={this.timeoutDialog}
+          ref={ref => { this.idleTimer2 = ref }}
+          onActive={this.handleOnActive2}
+          onIdle={this.handleOnIdle2}
+          timeout={this.timeout2}
         />
         <Modal isOpen={this.state.isIdle}
         style={customStyles} >
@@ -114,7 +110,6 @@ export default class IdleDialog extends React.Component {
   }
 
   handleOnIdle() {
-	console.log('--------------handleOnIdle()--------------------------');
     this.setState({ isIdle: true })
   }
 
@@ -128,7 +123,7 @@ export default class IdleDialog extends React.Component {
 
   handleReset() {
     if (this.idleTimer) this.idleTimer.reset()
-    if (this.idleTimerDialog) this.idleTimerDialog.reset()
+    if (this.idleTimer2) this.idleTimer2.reset()
   }
 
   handlePause() {
@@ -140,12 +135,12 @@ export default class IdleDialog extends React.Component {
   }
 
   // Logout if nothing selected
-  handleOnIdleDialog() {
+  handleOnIdle2() {
     this.handleLogout()
   }
-  handleOnActiveDialog() {
-    if(!this.idleTimerDialog)
-     this.setState({ isIdleDialog: false })
+  handleOnActive2() {
+    if(!this.idleTimer2)
+     this.setState({ isIdle2: false })
   }
 
 
