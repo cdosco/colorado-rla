@@ -107,12 +107,12 @@ public class SetContestNames extends AbstractDoSDashboardEndpoint {
       final List<CanonicalUpdate> canons = Main.GSON.fromJson(request.body(), TYPE_TOKEN);
 
        if (canons == null) {
-         LOGGER.error("SetContestNames-annons is null");
+
          badDataContents(response, "null cannons, malformed contest mappings");
       } else {
           final DoSDashboard dosdb = Persistence.getByID(DoSDashboard.ID, DoSDashboard.class);
         if (dosdb == null) {
-          LOGGER.error("SetContestNames-dosdb is null");
+
           serverError(response, "could not set contest mappings");
         }
         final int updateCount = changeNames(canons);
@@ -120,13 +120,10 @@ public class SetContestNames extends AbstractDoSDashboardEndpoint {
         ok(response, String.format("re-mapped %d contest names", updateCount));
       }
     } catch (final PersistenceException e) {
-      LOGGER.error("SetContestNames-PersistenceException is caught", e);
       serverError(response, "unable to re-map contest names");
     } catch (final JsonParseException e) {
-      LOGGER.error("SetContestNames-JsonParseException causing malformed error", e);
       badDataContents(response, "malformed contest mapping");
     } catch (final Exception e) {
-      LOGGER.error("SetContestNames-Exception is caught", e);
       badDataContents(response, "Exception");
     }
     LOGGER.info(my_endpoint_result.get());
