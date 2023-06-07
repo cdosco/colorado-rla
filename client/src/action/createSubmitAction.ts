@@ -27,8 +27,6 @@ function createSubmitAction<S, R>(config: CreateSubmitConfig<S, R>) {
     } = config;
 
     const createData = config.createData || defaultCreateData;
-    let isSetContestNameRequestInProgress = false; 
-
     async function submitAction(sent: S) {
     
         action(sendType);
