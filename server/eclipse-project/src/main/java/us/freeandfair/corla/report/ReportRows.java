@@ -388,6 +388,10 @@ public class ReportRows {
       // general info
       row.put("Contest", ca.contestResult().getContestName());
       row.put("targeted", yesNo(ca.isTargeted()));
+
+      if (ca.contestResult().getWinners() == null || ca.contestResult().getWinners().isEmpty()) {
+        LOGGER.info("no winner!!! " + ca);
+      }
       row.put("Winner", toString(ca.contestResult().getWinners().iterator().next()));
       row.put("Risk Limit met?", yesNo(riskLimitMet(ca.getRiskLimit(), riskMsmnt)));
       row.put("Risk measurement %", sigFig(percentage(riskMsmnt), 1).toString());

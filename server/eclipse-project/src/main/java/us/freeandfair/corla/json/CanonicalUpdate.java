@@ -18,7 +18,7 @@ public class CanonicalUpdate {
   public List<ChoiceChange> choices;
 
   /** json deserializer for SetContestNames **/
-  public class ChoiceChange {
+  public static class ChoiceChange {
 
     /** aka current name **/
     public String oldName;

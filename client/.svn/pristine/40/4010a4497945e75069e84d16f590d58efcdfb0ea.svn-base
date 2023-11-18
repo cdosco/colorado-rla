@@ -1,0 +1,17 @@
+import withDOSState from 'corla/component/withDOSState';
+import withSync from 'corla/component/withSync';
+
+import OverviewPage from './OverviewPage';
+
+function mapStateToProps(dosState: DOS.AppState) {
+    return {
+        contests: dosState.contests,
+        dosState,
+    };
+}
+
+export default withSync(
+    withDOSState(OverviewPage),
+    'DOS_CONTEST_OVERVIEW_SYNC',
+    mapStateToProps,
+);

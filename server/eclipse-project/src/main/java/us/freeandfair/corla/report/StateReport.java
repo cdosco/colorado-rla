@@ -520,7 +520,7 @@ public class StateReport {
 
             cell = row.createCell(cell_number++);
             cell.setCellStyle(standard_right_style);
-            if (ccr.winners().contains(choice)) {
+            if ((ccr.winners().stream().anyMatch(w -> w.equalsIgnoreCase(choice)))) {
               cell.setCellValue("W");
             } else {
               cell.setCellValue("L");

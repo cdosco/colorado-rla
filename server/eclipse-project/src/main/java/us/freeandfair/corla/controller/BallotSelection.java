@@ -253,7 +253,8 @@ public final class BallotSelection {
   public static Selection randomSelection(final ContestResult contestResult,
                                           final String seed,
                                           final Integer minIndex,
-                                          final Integer maxIndex) {
+                                           final Integer maxIndex) {
+
     if (minIndex > maxIndex) {
       // you are done, silly
       final Selection selection = new Selection();

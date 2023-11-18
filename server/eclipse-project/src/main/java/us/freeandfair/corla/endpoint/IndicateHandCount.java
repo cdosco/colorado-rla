@@ -12,30 +12,22 @@
 package us.freeandfair.corla.endpoint;
 
 
+import com.google.gson.JsonParseException;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import spark.Request;
+import spark.Response;
+import us.freeandfair.corla.Main;
+import us.freeandfair.corla.asm.ASMEvent;
+import us.freeandfair.corla.model.*;
+import us.freeandfair.corla.persistence.Persistence;
+import us.freeandfair.corla.query.ComparisonAuditQueries;
+
+import javax.persistence.PersistenceException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import javax.persistence.PersistenceException;
-
-import com.google.gson.JsonParseException;
-
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
-import spark.Request;
-import spark.Response;
-
-import us.freeandfair.corla.Main;
-import us.freeandfair.corla.asm.ASMEvent;
-import us.freeandfair.corla.model.AuditType;
-import us.freeandfair.corla.model.AuditStatus;
-import us.freeandfair.corla.model.Contest;
-import us.freeandfair.corla.model.ContestToAudit;
-import us.freeandfair.corla.model.DoSDashboard;
-import us.freeandfair.corla.persistence.Persistence;
-import us.freeandfair.corla.query.ComparisonAuditQueries;
 
 /**
  * The endpoint for indicating that a contest must be hand-counted.
@@ -48,8 +40,7 @@ public class IndicateHandCount extends AbstractDoSDashboardEndpoint {
   /**
    * Class-wide logger
    */
-  public static final Logger LOGGER =
-    LogManager.getLogger(IndicateHandCount.class);
+  public static final Logger LOGGER = LogManager.getLogger(IndicateHandCount.class);
 
 
   /**
@@ -175,7 +166,7 @@ public class IndicateHandCount extends AbstractDoSDashboardEndpoint {
 
   private void unTargetContests(final DoSDashboard dosdb,
                                 final Set<String> hand_count_contests) {
-    for(final String contestName: hand_count_contests) {
+    for (final String contestName: hand_count_contests) {
       dosdb.removeContestToAuditByName(contestName);
       ComparisonAuditQueries.updateStatus(contestName, AuditStatus.HAND_COUNT);
     }

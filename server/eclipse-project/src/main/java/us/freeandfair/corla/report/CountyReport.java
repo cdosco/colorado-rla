@@ -583,8 +583,8 @@ public class CountyReport {
 
         cell = row.createCell(cell_number++);
         cell.setCellStyle(standard_right_style);
-        if (ccr.winners().contains(choice)) {
-          cell.setCellValue("W");
+        if ((ccr.winners().stream().anyMatch(w -> w.equalsIgnoreCase(choice)))) {
+            cell.setCellValue("W");
         } else {
           cell.setCellValue("L");
         }
