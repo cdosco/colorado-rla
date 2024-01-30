@@ -1,15 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>us.freeandfair.production</groupId>
-	<artifactId>colorado_rla</artifactId>
-	<version>1.1.0</version>
+	<artifactId>corla-server</artifactId>
+	<packaging>jar</packaging>
+
+	<version>2.4.7-SNAPSHOT</version>
 	<name>ColoradoRLA</name>
+	<parent>
+		<groupId>us.co.state.sos</groupId>
+		<artifactId>sos-parent-pom</artifactId>
+		<version>2.0.21</version>
+	</parent>
+	<scm>
+
+		<connection>scm:svn:https://rh7build/svn/repo/colorado-rla-serer/trunk</connection>
+
+	</scm>
+
+
 	<description>A risk-limiting audit system for the State of Colorado</description>
 	<properties>
-	  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<compileSource>11</compileSource>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<corla.test.excludedGroups>integration</corla.test.excludedGroups>
+		<checkstyle.skip>true</checkstyle.skip>
+		<maven.javadoc.skip>true</maven.javadoc.skip>
+        <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
+		<spotbugs.maven.skip>true</spotbugs.maven.skip>
+
 	</properties>
+	<profiles>
+	<profile>
+		<id>java8-doclint-disabled</id>
+		<activation>
+			<jdk>[1.8,)</jdk>
+		</activation>
+		<properties>
+			<javadoc.opts>-Xdoclint:none</javadoc.opts>
+		</properties>
+	</profile>
+	</profiles>
+
 	<build>
 		<directory>target</directory>
 		<outputDirectory>target/classes</outputDirectory>
@@ -34,96 +66,109 @@
 		</testResources>
 		<plugins>
 			<plugin>
-			  <groupId>org.apache.maven.plugins</groupId>
-			  <artifactId>maven-shade-plugin</artifactId>
-			  <version>3.0.0</version>
-			  <executions>
-			    <execution>
-			      <goals>
-			        <goal>shade</goal>
-			      </goals>
-			      <configuration>
-			        <shadedArtifactAttached>true</shadedArtifactAttached>
-			        <transformers>
-			          <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-			            <mainClass>us.freeandfair.corla.Main</mainClass>
-			          </transformer>
-			        </transformers>
-			      </configuration>
-			    </execution>
-			  </executions>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-site-plugin</artifactId>
+			<version>3.7.1</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
-				<version>3.8</version>
-				<executions>
-					<execution>
-						<id>pmd</id>
-						<phase>verify</phase>
-						<configuration>
-							<rulesets>
-								<ruleset>${project.basedir}/project_configuration/freeandfair_pmd_ruleset.xml</ruleset>
-							</rulesets>
-						</configuration>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
+				<version>3.11.0</version>
+				<configuration>
+					<linkXref>true</linkXref>
+					<targetJdk>${compileSource}</targetJdk>
+					<activation>
+						<property>
+							<name>maven.release.skip</name>
+						</property>
+					</activation>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>4.0.4</version>
+				<dependencies>
+					<!-- overwrite dependency on spotbugs if you want to specify the version of spotbugs -->
+					<dependency>
+						<groupId>com.github.spotbugs</groupId>
+						<artifactId>spotbugs</artifactId>
+						<version>4.1.2</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.17</version>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.2.1</version>
 				<executions>
 					<execution>
-						<id>checkstyle</id>
-						<phase>verify</phase>
-						<configuration>
-							<configLocation>${project.basedir}/project_configuration/freeandfair_checkstyle.xml</configLocation>
-							<suppressionsLocation>${project.basedir}/project_configuration/checkstyle_suppression.xml</suppressionsLocation>
-							<consoleOutput>true</consoleOutput>
-							<failOnViolation>true</failOnViolation>
-							<failsOnError>true</failsOnError>
-							<violationSeverity>warning</violationSeverity>
-							<linkXRef>false</linkXRef>
-						</configuration>
 						<goals>
-							<goal>check</goal>
+							<goal>shade</goal>
 						</goals>
+						<configuration>
+							<!--							<shadedArtifactAttached>true</shadedArtifactAttached>-->
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>us.freeandfair.corla.Main</mainClass>
+								</transformer>
+							</transformers>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
+			<!--
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>findbugs-maven-plugin</artifactId>
-				<version>3.0.4</version>
-				<executions>
-					<execution>
-						<id>findbugs</id>
-						<phase>verify</phase>
-						<configuration>
-							<effort>Max</effort>
-							<threshold>Low</threshold>
-							<xmlOutput>false</xmlOutput>
-							<!-- this must be kept in sync with Eclipse plugin configuration -->
-							<omitVisitors>BadAppletConstructor,CheckExpectedWarnings,EmptyZipFileEntry,FindCircularDependencies</omitVisitors>
-						</configuration>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                        <transformers>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                <resource>META-INF/spring.handlers</resource>
+                            </transformer>
+                            <transformer implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">
+                                <resource>META-INF/spring.factories</resource>
+                            </transformer>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                <resource>META-INF/spring.schemas</resource>
+                            </transformer>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+ 				<mainClass>us.freeandfair.corla.Main</mainClass>
+                            </transformer>
+                        </transformers>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+  -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.2</version>
+				<configuration>
+					<excludedGroups>${corla.test.excludedGroups}</excludedGroups>
+				</configuration>
 			</plugin>
+
+
+
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.6.1</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>11</source>
+					<target>11</target>
 				</configuration>
 			</plugin>
+
 		</plugins>
 	</build>
 	<dependencies>
@@ -132,10 +177,26 @@
 			<artifactId>spark-core</artifactId>
 			<version>2.6.0</version>
 		</dependency>
+
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.25</version>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.17.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.17.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-1.2-api</artifactId>
+			<version>2.17.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>2.17.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
@@ -151,6 +212,31 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-csv</artifactId>
 			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.9.4</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.6</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>1.10.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -204,9 +290,20 @@
 			<version>3.5.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.6</version>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-pmd-plugin</artifactId>
+			<version>3.11.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-site-plugin</artifactId>
+			<version>3.7.1</version>
+		</dependency>
+
 	</dependencies>
 </project>

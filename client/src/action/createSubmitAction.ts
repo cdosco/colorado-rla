@@ -2,7 +2,6 @@ import { empty } from 'corla/util';
 
 import action from '.';
 
-
 type CreateDataFn<S, R> = (sent: S, received: R) => Action.SubmitData<S, R>;
 
 interface CreateSubmitConfig<S, R> {
@@ -28,8 +27,8 @@ function createSubmitAction<S, R>(config: CreateSubmitConfig<S, R>) {
     } = config;
 
     const createData = config.createData || defaultCreateData;
-
     async function submitAction(sent: S) {
+    
         action(sendType);
 
         const init: RequestInit = {
@@ -40,7 +39,9 @@ function createSubmitAction<S, R>(config: CreateSubmitConfig<S, R>) {
 
         try {
             const r = await fetch(url, init);
-
+    if (url.includes("set-contest-names")) {
+        console.log('++++++++++++++  fetching set-contest-name');
+    }
             if (!r.ok) {
                 const err = await r.json();
 
@@ -49,23 +50,27 @@ function createSubmitAction<S, R>(config: CreateSubmitConfig<S, R>) {
                 if (r.status === 401) {
                     action('NOT_AUTHORIZED');
                 }
-
-                return;
+                return r;
             }
 
-            const received = await r.json().catch(empty);
+            const received = await r.json().catch((error) =>{
+                console.log('Failed to parse JSON respone:', error)
+                return r.text();
+            });
             const data = createData(sent, received);
 
             action(okType, data);
+            return r;
         } catch (e) {
-            action(networkFailType);
-
+           action(networkFailType);
+            console.log("createSubmitAction catch(e):" + e);
             throw e;
-        }
+        } 
+
+
     }
 
     return submitAction;
 }
-
 
 export default createSubmitAction;
