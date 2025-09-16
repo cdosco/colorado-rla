@@ -22,5 +22,6 @@ public enum AuditStatus {
     NOT_AUDITABLE,
     IN_PROGRESS,
     RISK_LIMIT_ACHIEVED,
-    ENDED;
+    ENDED,
+    HAND_COUNT;
 }

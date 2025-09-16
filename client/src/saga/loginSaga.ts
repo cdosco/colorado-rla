@@ -6,7 +6,6 @@ import {
 import notice from 'corla/notice';
 import session from 'corla/session';
 
-
 function* login1FOk(action: any) {
     const { data } = action;
     const { stage } = data.received;
@@ -35,7 +34,6 @@ function* loginFail(): IterableIterator<void> {
 function* loginNetworkFail(): IterableIterator<void> {
     notice.danger('Unable to log in due to network error.');
 }
-
 
 export default function* loginSaga() {
     yield takeLatest('LOGIN_1F_NETWORK_FAIL', loginNetworkFail);

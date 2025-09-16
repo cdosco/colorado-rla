@@ -2,7 +2,6 @@ import { delay } from 'redux-saga';
 import { SelectEffect } from 'redux-saga/effects';
 import { cancel, fork, take } from 'redux-saga/effects';
 
-
 type SelectPollDelay = () => number | IterableIterator<number | SelectEffect>;
 
 function createPollSaga(
@@ -39,6 +38,5 @@ function createPollSaga(
 
     return pollSaga;
 }
-
 
 export default createPollSaga;

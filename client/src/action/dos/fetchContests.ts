@@ -2,9 +2,7 @@ import { endpoint } from 'corla/config';
 
 import createFetchAction from 'corla/action/createFetchAction';
 
-
 const url = endpoint('contest');
-
 
 export default createFetchAction({
     failType: 'DOS_FETCH_CONTESTS_FAIL',

@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
 
-
 const REPORT_STATES = [
     'AUDIT_READY_TO_START',
     'DOS_AUDIT_ONGOING',
@@ -12,6 +11,5 @@ const REPORT_STATES = [
 function canRenderReport(state: DOS.AppState): boolean {
     return _.includes(REPORT_STATES, state.asm);
 }
-
 
 export default canRenderReport;

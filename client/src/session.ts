@@ -1,6 +1,5 @@
 import * as cookie from 'js-cookie';
 
-
 type SessionType = 'county' | 'dos';
 
 interface Session {
@@ -34,6 +33,5 @@ function get(): Option<Session> {
 function save(session: Session) {
     cookie.set('session', session);
 }
-
 
 export default { active, expire, get, save };

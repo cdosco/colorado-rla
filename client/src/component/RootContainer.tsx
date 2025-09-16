@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { connect, Provider, Store } from 'react-redux';
+import { Provider, Store } from 'react-redux';
 import {
     BrowserRouter as Router,
-    Redirect,
     Route,
     Switch,
 } from 'react-router-dom';
@@ -15,11 +14,16 @@ import AuditBoardPageContainer from './County/AuditBoard/PageContainer';
 import CountyAuditPageContainer from './County/Audit/PageContainer';
 import CountyDashboardPageContainer from './County/Dashboard/PageContainer';
 
-import NextLoginContainer from './Login/Container';
+import LoginContainer from './Login/Container';
 
+
+import DOSDefineAuditEstimateSampleSizesPageContainer from './DOS/DefineAudit/EstimateSampleSizesPageContainer';
+import DOSDefineAuditGenerateAssertionsPageContainer from './DOS/DefineAudit/GenerateAssertionsPageContainer';
 import DOSDefineAuditReviewPageContainer from './DOS/DefineAudit/ReviewPageContainer';
 import DOSDefineAuditSeedPageContainer from './DOS/DefineAudit/SeedPageContainer';
 import DOSDefineAuditSelectContestsPageContainer from './DOS/DefineAudit/SelectContestsPageContainer';
+import DOSDefineAuditStandardizeChoicesPageContainer from './DOS/DefineAudit/StandardizeChoicesPageContainer';
+import DOSDefineAuditStandardizeContestsPageContainer from './DOS/DefineAudit/StandardizeContestsPageContainer';
 import DOSDefineAuditStartPageContainer from './DOS/DefineAudit/StartPageContainer';
 
 import DOSContestDetailPageContainer from './DOS/Contest/DetailPageContainer';
@@ -28,7 +32,6 @@ import DOSCountyDetailPageContainer from './DOS/County/DetailPageContainer';
 import DOSCountyOverviewPageContainer from './DOS/County/OverviewPageContainer';
 
 import DOSDashboardContainer from './DOS/Dashboard/PageContainer';
-
 
 export interface RootContainerProps {
     store: Store<AppState>;
@@ -44,7 +47,7 @@ export class RootContainer extends React.Component<RootContainerProps> {
                     <Switch>
                         <Route exact
                                path='/login'
-                               component={ NextLoginContainer } />
+                               component={ LoginContainer } />
                         <LoginRoute exact
                                     path='/'
                                     page={ RootRedirectContainer } />
@@ -52,10 +55,10 @@ export class RootContainer extends React.Component<RootContainerProps> {
                                     path='/county'
                                     page={ CountyDashboardPageContainer } />
                         <LoginRoute exact
-                                    path='/county/board'
+                                    path='/county/board/:id'
                                     page={ AuditBoardPageContainer } />
                         <LoginRoute exact
-                                    path='/county/audit'
+                                    path='/county/audit/:id'
                                     page={ CountyAuditPageContainer } />
                         <LoginRoute exact
                                     path='/sos'
@@ -66,6 +69,18 @@ export class RootContainer extends React.Component<RootContainerProps> {
                         <LoginRoute exact
                                     path='/sos/audit/seed'
                                     page={ DOSDefineAuditSeedPageContainer } />
+                        <LoginRoute exact
+                                    path='/sos/audit/standardize-contests'
+                                    page={ DOSDefineAuditStandardizeContestsPageContainer } />
+                        <LoginRoute exact
+                                    path='/sos/audit/standardize-choices'
+                                    page={ DOSDefineAuditStandardizeChoicesPageContainer } />
+                        <LoginRoute exact
+                                    path='/sos/audit/generate-assertions'
+                                    page={ DOSDefineAuditGenerateAssertionsPageContainer } />
+                        <LoginRoute exact
+                                    path='/sos/audit/estimate-sample-sizes'
+                                    page={ DOSDefineAuditEstimateSampleSizesPageContainer } />
                         <LoginRoute exact
                                     path='/sos/audit/select-contests'
                                     page={ DOSDefineAuditSelectContestsPageContainer } />

@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
 
-
 function allRoundsComplete(state: County.AppState): boolean {
     if (_.isEmpty(state.rounds)) { return false; }
 
@@ -8,6 +7,5 @@ function allRoundsComplete(state: County.AppState): boolean {
 
     return !currentRound || _.isEmpty(currentRound);
 }
-
 
 export default allRoundsComplete;

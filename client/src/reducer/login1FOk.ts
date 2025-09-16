@@ -12,7 +12,6 @@ function parseChallenge(challenge: string): LoginChallenge {
     return boxes.map(parseBox);
 }
 
-
 function parse(data: any) {
     const { received, sent } = data;
 
@@ -28,7 +27,6 @@ function parse(data: any) {
 
     return { dashboard, loginChallenge, username };
 }
-
 
 export default function login1FOk(
     state: LoginAppState,

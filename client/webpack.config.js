@@ -1,7 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
 
-
 module.exports = {
     entry: [
         // Activate HMR for React.
@@ -16,15 +15,14 @@ module.exports = {
 
         // Actual app entry point.
         './src/index.tsx',
+
     ],
 
     output: {
         filename: 'bundle.js',
-
         path: path.join(__dirname, 'dist'),
-
         // Tell HMR where to load hot update chunks.
-        publicPath: '/static/',
+       publicPath: '/static/',
     },
 
     resolve: {
@@ -33,20 +31,21 @@ module.exports = {
 
         alias: {
             // Add an import alias for the project root.
-            corla: path.resolve(__dirname, 'src'),
+            corla: path.join(__dirname, 'src'),
         },
-    },
+   },
 
     plugins: [
         new webpack.DefinePlugin({
-            DEBUG: true,
-        }),
+            "process.env": {'DEBUG' : true},
+            global: {}
+          }),   
 
         // Enable HMR, needed by `react-hot-loader`.
         new webpack.HotModuleReplacementPlugin(),
 
         // Use readable module names in console.
-        new webpack.NamedModulesPlugin(),
+        //new webpack.NamedModulesPlugin(),
 
         // Don't emit compiled assets that include errors.
         new webpack.NoEmitOnErrorsPlugin(),
@@ -56,20 +55,27 @@ module.exports = {
         rules: [
             {
                 test: /\.tsx?$/,
-                loaders: [
-                    'react-hot-loader/webpack',
-                    'awesome-typescript-loader'
-                ],
+                use: {loader:  'react-hot-loader/webpack'},
                 exclude: path.join(__dirname, 'node_modules'),
                 include: path.join(__dirname, 'src'),
             },
+            {
+                test: /\.tsx?$/,
+                use: {loader: 'awesome-typescript-loader'},
+                exclude: path.join(__dirname, 'node_modules'),
+                include: path.join(__dirname, 'src'),
+            },
+
         ],
     },
 
     devServer: {
+        static: {
+            directory:  path.join(__dirname, '/'),
+        }, 
         host: 'localhost',
         port: 3000,
-
+        open: true,
         // Serve `index.html` on 404.
         historyApiFallback: true,
 
@@ -79,4 +85,6 @@ module.exports = {
 
     // Enable source maps.
     devtool: 'inline-source-map',
+    mode: 'development',
+ 
 };

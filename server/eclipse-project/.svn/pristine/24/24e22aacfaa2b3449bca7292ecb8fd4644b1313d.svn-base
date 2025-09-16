@@ -1,0 +1,36 @@
+# src test resources
+rootLogger.level=INFO
+rootLogger.appenderRef.stdout.ref = consoleLogger
+
+appender.console.type = Console
+appender.console.name = consoleLogger
+appender.console.layout.type = PatternLayout
+appender.console.layout.pattern = %d{ABSOLUTE} %5p %c{1}:%L - %m%n
+rootLogger.appenderRef.stdout.ref = consoleLogger
+
+
+#log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+#log4j.appender.stdout.Target=System.out
+#log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+#log4j.appender.stdout.layout.ConversionPattern=%d{ABSOLUTE} %5p %c{1}:%L - %m%n
+
+appender.rolling.type = RollingFile
+appender.rolling.name = fileLogger
+appender.rolling.fileName = corla.log
+appender.rolling.filePattern = corla.%d{yyyy-MM-dd-HH:mm:ss}.%i.log.gz
+appender.rolling.layout.type = PatternLayout
+appender.rolling.layout.pattern=%d{ABSOLUTE} %5p %c{1}:%L - %m%n
+appender.rolling.policies.type = Policies
+appender.rolling.policies.size.type = SizeBasedTriggeringPolicy
+appender.rolling.policies.size.size=10MB
+appender.rolling.strategy.type = DefaultRolloverStrategy
+
+rootLogger.appenderRef.rolling.ref = fileLogger
+
+#log4j.appender.logfile=org.apache.log4j.RollingFileAppender
+#log4j.appender.logfile.File=corla.log
+#log4j.appender.logfile.layout=org.apache.log4j.PatternLayout
+#log4j.appender.logfile.layout.ConversionPattern=%d{ABSOLUTE} %5p %c{1}:%L - %m%n
+
+
+log4j.logger.org.hibernate.SQL=ERROR

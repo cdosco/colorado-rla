@@ -1,106 +1,46 @@
 import * as React from 'react';
+import IdleDialog from '../../IdleDialog';
 
 import * as _ from 'lodash';
 
-import Nav from '../Nav';
+import { Breadcrumb, Button, Card, Intent } from '@blueprintjs/core';
+
+import DOSLayout from 'corla/component/DOSLayout';
 
 import SelectContestsForm from './SelectContestsForm';
 
-import counties from 'corla/data/counties';
-
-
-const Breadcrumb = () => (
-    <ul className='pt-breadcrumbs'>
-        <li>
-            <a className='pt-breadcrumb' href='/sos'>
-                SoS
-            </a>
-        </li>
-        <li>
-            <a className='pt-breadcrumb' href='/sos/audit'>
-                Audit Admin
-            </a>
-        </li>
-        <li>
-            <a className='pt-breadcrumb pt-breadcrumb-current'>
-                Select Contests
-            </a>
-        </li>
+const Breadcrumbs = () => (
+    <ul className='pt-breadcrumbs mb-default'>
+        <li><Breadcrumb href='/sos' text='SoS' />></li>
+        <li><Breadcrumb href='/sos/audit' text='Audit Admin' /></li>
+        <li><Breadcrumb className='pt-breadcrumb-current' text='Select Contests' /></li>
     </ul>
 );
-
-function formatReason(reason: AuditReason): string {
-    if (reason === 'STATE_WIDE_CONTEST') {
-        return 'State Contest';
-    }
-
-    return 'County Contest';
-}
-
-interface SelectedContestsProps {
-    auditedContests: DOS.AuditedContests;
-    contests: DOS.Contests;
-}
-
-const SelectedContests = (props: SelectedContestsProps) => {
-    const { auditedContests, contests } = props;
-
-    const rows = _.map(props.auditedContests, audited => {
-        const contest = contests[audited.id];
-        const countyName = counties[contest.countyId].name;
-
-        return (
-            <tr key={ contest.id }>
-                <td>{ countyName }</td>
-                <td>{ contest.name }</td>
-                <td>{ formatReason(audited.reason) }</td>
-            </tr>
-        );
-    });
-
-    return (
-        <div className='pt-card'>
-            <h3>Selected Contests</h3>
-            <div className='pt-card'>
-                <table className='pt-table pt-bordered pt-condensed'>
-                    <thead>
-                        <tr>
-                            <th>County</th>
-                            <th>Name</th>
-                            <th>Reason</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        { rows }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
-};
 
 interface WaitingPageProps {
     back: OnClick;
 }
 
 const WaitingForContestsPage = ({ back }: WaitingPageProps) => {
-    return (
+    const main =
         <div>
-            <Nav />
             <Breadcrumb />
-            <div className='pt-card'>
+            <Card>
                 Waiting for counties to upload contest data.
-            </div>
-            <div>
-                <button onClick={ back } className='pt-button pt-intent-primary pt-breadcrumb'>
-                    Back
-                </button>
-                <button disabled className='pt-button pt-intent-primary pt-breadcrumb'>
-                    Save & Next
-                </button>
-            </div>
-        </div>
-    );
+            </Card>
+            <Button onClick={ back }
+                    className='pt-breadcrumb'>
+                Back
+            </Button>
+            &nbsp;
+            <Button disabled
+                    intent={ Intent.PRIMARY }
+                    className='pt-breadcrumb'>
+                Save & Next
+            </Button>
+        </div>;
+
+    return <DOSLayout main={ main } />;
 };
 
 interface PageProps {
@@ -131,35 +71,32 @@ const SelectContestsPage = (props: PageProps) => {
     const haveSelectedContests = !_.isEmpty(auditedContests);
 
     const onSaveAndNext = () => {
-        if (!haveSelectedContests) {
-            selectContestsForAudit(forms.selectContestsForm);
-        }
+        selectContestsForAudit(forms.selectContestsForm);
         nextPage();
     };
 
-    const contentDiv = !haveSelectedContests
-                     ? <SelectContestsForm forms={ forms }
-                                           contests={ contests }
-                                           isAuditable={ isAuditable } />
-                     : <SelectedContests auditedContests={ auditedContests }
-                                         contests={ contests } />;
-
-    return (
+    const main =
         <div>
-            <Nav />
-            <Breadcrumb />
-            { contentDiv }
-            <div>
-                <button onClick={ back } className='pt-button pt-intent-primary pt-breadcrumb'>
-                    Back
-                </button>
-                <button onClick={ onSaveAndNext } className='pt-button pt-intent-primary pt-breadcrumb'>
-                    Save & Next
-                </button>
-            </div>
-        </div>
-    );
-};
+            <IdleDialog />
+            <Breadcrumbs />
+            <SelectContestsForm forms={ forms }
+                                contests={ contests }
+                                auditedContests={auditedContests}
+                                isAuditable={ isAuditable } />
 
+            <Button onClick={ back }
+                    className='pt-breadcrumb'>
+                Back
+            </Button>
+            &nbsp;
+            <Button onClick={ onSaveAndNext }
+                    intent={ Intent.PRIMARY }
+                    className='pt-breadcrumb'>
+                Save & Next
+            </Button>
+        </div>;
+
+    return <DOSLayout main={ main } />;
+};
 
 export default SelectContestsPage;

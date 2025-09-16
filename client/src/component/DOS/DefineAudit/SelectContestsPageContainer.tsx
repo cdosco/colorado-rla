@@ -8,8 +8,8 @@ import withPoll from 'corla/component/withPoll';
 
 import SelectContestsPage from './SelectContestsPage';
 
+import resetAudit from 'corla/action/dos/resetAudit';
 import selectContestsForAudit from 'corla/action/dos/selectContestsForAudit';
-
 
 interface ContainerProps {
     auditedContests: DOS.AuditedContests;
@@ -40,10 +40,13 @@ class SelectContestsPageContainer extends React.Component<ContainerProps> {
         if (dosState.asm === 'DOS_AUDIT_ONGOING') {
             return <Redirect to='/sos' />;
         }
-
+        const previousPage = async () => {
+            await resetAudit();
+            history.push('/sos/audit');
+        };
         const props = {
             auditedContests,
-            back: () => history.push('/sos/audit'),
+            back: previousPage,
             contests,
             isAuditable,
             nextPage: () => history.push('/sos/audit/seed'),
@@ -54,11 +57,21 @@ class SelectContestsPageContainer extends React.Component<ContainerProps> {
     }
 }
 
-function select(dosState: DOS.AppState) {
-    const isAuditable = (contestId: number): boolean => {
+function mapStateToProps(dosState: DOS.AppState) {
+    const isAuditable = (contest: Contest): boolean => {
         if (!dosState.auditTypes) { return false; }
 
-        const t = dosState.auditTypes[contestId];
+        if (contest.description === 'IRV') {
+            const assertionSummary = dosState.generateAssertionsSummaries.find(
+                element => element.summary.contestName === contest.name);
+
+            // Tied IRV contests or contests with failed assertion generations are not auditable
+            if (assertionSummary && assertionSummary.summary.error.length > 0) {
+                return false;
+            }
+        }
+
+        const t = dosState.auditTypes[contest.id];
 
         return t !== 'HAND_COUNT' && t !== 'NOT_AUDITABLE';
     };
@@ -71,10 +84,9 @@ function select(dosState: DOS.AppState) {
     };
 }
 
-
 export default withPoll(
     withDOSState(SelectContestsPageContainer),
     'DOS_SELECT_CONTESTS_POLL_START',
     'DOS_SELECT_CONTESTS_POLL_STOP',
-    select,
+    mapStateToProps,
 );

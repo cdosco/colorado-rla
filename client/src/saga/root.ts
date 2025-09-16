@@ -6,8 +6,8 @@ import acvrUploadSaga from './county/acvrUploadSaga';
 import auditBoardSignInSaga from './county/auditBoardSignInSaga';
 import ballotNotFoundOkSaga from './county/ballotNotFoundOkSaga';
 import countyDashboardRefreshOkSaga from './county/dashboardRefreshOkSaga';
+import reAuditCvrSaga from './county/reAuditCvrSaga';
 import countySyncSaga from './county/sync';
-import uploadAcvrOkSaga from './county/uploadAcvrOkSaga';
 import uploadBallotManifestSaga from './county/uploadBallotManifestSaga';
 import uploadCvrExportSaga from './county/uploadCvrExportSaga';
 
@@ -20,7 +20,6 @@ import loginSaga from './loginSaga';
 import logoutSaga from './logoutSaga';
 import syncSaga from './sync';
 
-
 export default function* rootSaga() {
     const sagas = [
         acvrUploadSaga(),
@@ -32,8 +31,8 @@ export default function* rootSaga() {
         dosSyncSaga(),
         loginSaga(),
         logoutSaga(),
+        reAuditCvrSaga(),
         syncSaga(),
-        uploadAcvrOkSaga(),
         uploadBallotManifestSaga(),
         uploadCvrExportSaga(),
     ];

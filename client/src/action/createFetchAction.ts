@@ -2,7 +2,6 @@ import { empty } from 'corla/util';
 
 import action from '.';
 
-
 interface CreateFetchConfig {
     failType: string;
     networkFailType: string;
@@ -20,7 +19,7 @@ function createFetchAction(config: CreateFetchConfig) {
         url,
     } = config;
 
-    async function fetchAction() {
+    async function fetchAction(queryParams: URLSearchParams | null = null) {
         action(sendType);
 
         const init: RequestInit = {
@@ -29,7 +28,10 @@ function createFetchAction(config: CreateFetchConfig) {
         };
 
         try {
-            const r = await fetch(url, init);
+            // append query string if provided
+            const fullUrl = queryParams ? `${url}?${queryParams.toString()}` : url;
+
+            const r = await fetch(fullUrl, init);
 
             if (!r.ok) {
                 action(failType);
@@ -51,6 +53,5 @@ function createFetchAction(config: CreateFetchConfig) {
 
     return fetchAction;
 }
-
 
 export default createFetchAction;

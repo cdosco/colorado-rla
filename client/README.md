@@ -1,69 +1,33 @@
-# CORLA Browser Client
+# Colorado RLA Software - Client
 
-## Setup
+## Requirements
 
-The CORLA browser client is being developed on Node v7.10.1, NPM
-v4.2.0. After installing this on your platform, run `npm i` to pull in
-the project build dependencies.
+Before you get started, you will need:
 
-Most development tasks are exposed as NPM scripts. Available are:
+- [`Node.js`][node-js] LTS
+- `npm` - should be bundled with `Node.js`.
 
-- Run a dev server with Hot Module Reloading: `npm start`
-- Build a distributable stand-alone production bundle: `npm run dist`
-- Typecheck and build a development bundle (for CI): `npm run pack`
-- Run unit tests: `npm test`
-- Watch files and run unit tests on change: `npm run watch`
-- Lint with TSLint: `npm run lint`
+## Quick start
 
-## Site map
+1. Install the dependencies under **Requirements**.
+2. Install the project dependencies:
+   ```
+   $ npm install
+   ```
+3. Run the development server:
+   ```
+   $ npm start
+   ```
 
-Though implemented as a single-page browser application, we can use
-URL paths to organize the activities provided by the application.
-There are two types of users: Secretary of State officials (SSO's) and
-county officials (CO's). Different users may see different pages at a
-any given URL path, and have distinct site roots. We thus describe
-each user type's site map separately.
+## Development
 
-Unauthenticated users will always be redirected to `/login`. If a
-logged-in SOS or County user navigates to `/`, they will be redirected
-to `/sos` or `/county`, as appropriate.
+Common development tasks:
 
+- `npm start`: run the development server
+- `npm test`: run unit tests
+- `npm run lint`: lint with TSLint
+- `npm run dist`: build a production bundle
+- `npm run pack`: typecheck and build a development bundle (for CI)
+- `npm run watch`: watch files and run unit tests on change
 
-### Unauthenticated
-
-#### `/login`
-
-Authenticate as a user of either type. Eventually, this will include a
-link to the public audit dashboard, which is not part of the CORLA
-browser client.
-
-
-### SoS Official
-
-| Path | Page |
-| ---- | ---- |
-| `/sos` | SOS Home |
-| `/sos/county` | County Overview |
-| `/sos/county/{countyId}`| County Detail |
-| `/sos/contest` | Contest Overview |
-| `/sos/contest/{contestId}` | Contest Detail |
-| `/sos/audit` | Audit |
-| `/sos/audit/review` | Review Audit |
-| `/sos/audit/seed` | Seed |
-
-
-### County Official
-
-| Path | Page |
-| ---- | ---- |
-| `/county` | County Home
-| `/county/sign-in` | County Audit Board Sign-In Page
-| `/county/audit` | Run Audit |
-
-### SOS and County Officials
-
-| Path | Page |
-| ---- | ---- |
-| `/help` | Help Home |
-| `/help/glossary` | Glossary |
-| `/help/manual` | User Manual |
+[node-js]: https://nodejs.org/en/

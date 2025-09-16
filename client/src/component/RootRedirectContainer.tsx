@@ -5,9 +5,6 @@ import { Redirect } from 'react-router-dom';
 
 import session from 'corla/session';
 
-import { isCountyAppState } from 'corla/type';
-
-
 interface RootRedirectContainerProps {
     stateType: AppStateType;
 }
@@ -36,9 +33,8 @@ export class RootRedirectContainer extends React.Component<RootRedirectContainer
     }
 }
 
-function select(state: AppState) {
+function mapStateToProps(state: AppState) {
     return { stateType: state.type };
 }
 
-
-export default connect(select)(RootRedirectContainer);
+export default connect(mapStateToProps)(RootRedirectContainer);

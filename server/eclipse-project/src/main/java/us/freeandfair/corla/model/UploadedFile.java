@@ -18,6 +18,7 @@ import java.time.Instant;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -32,10 +33,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
-import com.google.gson.annotations.JsonAdapter;
-
-import us.freeandfair.corla.json.UploadedFileJsonAdapter;
 import us.freeandfair.corla.persistence.PersistentEntity;
+import us.freeandfair.corla.persistence.ResultConverter;
+import us.freeandfair.corla.csv.Result;
 
 /**
  * An uploaded file, kept in persistent storage for archival.
@@ -51,7 +51,6 @@ import us.freeandfair.corla.persistence.PersistentEntity;
 // this class has many fields that would normally be declared final, but
 // cannot be for compatibility with Hibernate and JPA.
 @SuppressWarnings("PMD.ImmutableField")
-@JsonAdapter(UploadedFileJsonAdapter.class)
 public class UploadedFile implements PersistentEntity {
   /**
    * The database ID.
@@ -85,7 +84,7 @@ public class UploadedFile implements PersistentEntity {
    */
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  private FileStatus my_status;
+  private FileStatus status;
   
   /**
    * The orignal filename.
@@ -94,18 +93,22 @@ public class UploadedFile implements PersistentEntity {
   private String my_filename;
   
   /**
-   * The hash of the file.
+   * The computed hash of the file blob.
    */
   @Column(updatable = false, nullable = false)
-  private String my_hash;
-  
+  private String computed_hash;
+
   /**
-   * The status of hash verification.
+   * The hash submitted with file upload.
    */
-  @Column(nullable = false)
-  @Enumerated(EnumType.STRING)
-  private HashStatus my_hash_status;
-  
+  @Column(updatable = false, nullable = false)
+  private String submitted_hash;
+
+  /** the parse result **/
+  @Column(length = 65535, columnDefinition = "text")
+  @Convert(converter = ResultConverter.class)
+  private Result result;
+
   /**
    * The uploaded file. 
    */
@@ -139,9 +142,8 @@ public class UploadedFile implements PersistentEntity {
    * @param the_county The county that uploaded the file.
    * @param the_filename The original filename.
    * @param the_status The file status.
-   * @param the_hash The hash entered at upload time.
-   * @param the_hash_status A flag indicating whether the file matches
-   * the hash.
+   * @param computed_hash The computed hash of the file blob.
+   * @param submitted_hash The hash entered at upload time.
    * @param the_file The file (as a Blob).
    * @param the_size The file size (in bytes).
    * @param the_approximate_record_count The approximate record count.
@@ -149,9 +151,9 @@ public class UploadedFile implements PersistentEntity {
   public UploadedFile(final Instant the_timestamp,
                       final County the_county,
                       final String the_filename,
-                      final FileStatus the_status,
-                      final String the_hash,
-                      final HashStatus the_hash_status,
+                      final FileStatus status,
+                      final String computed_hash,
+                      final String submitted_hash,
                       final Blob the_file,
                       final Long the_size,
                       final Integer the_approximate_record_count) {
@@ -159,9 +161,9 @@ public class UploadedFile implements PersistentEntity {
     my_timestamp = the_timestamp;
     my_county = the_county;
     my_filename = the_filename;
-    my_status = the_status;
-    my_hash = the_hash;
-    my_hash_status = the_hash_status;
+    this.status = status;
+    this.computed_hash = computed_hash;
+    this.submitted_hash = submitted_hash;
     my_file = the_file;
     my_size = the_size;
     my_approximate_record_count = the_approximate_record_count;
@@ -215,33 +217,47 @@ public class UploadedFile implements PersistentEntity {
   /**
    * @return the status of this file.
    */
-  public FileStatus status() {
-    return my_status;
+  public FileStatus getStatus() {
+    return this.status;
   }
-  
   /**
    * Sets the file status.
    * 
    * @param the_status The new status.
    */
-  public void setStatus(final FileStatus the_status) {
-    my_status = the_status;
+  public void setStatus(final FileStatus status) {
+    this.status = status;
   }
-  
+
   /**
-   * @return the hash uploaded with this file.
+   * Set the parse result
+   * @param errorMessage of this file.
    */
-  public String hash() {
-    return my_hash;
+  public void setResult(final Result result) {
+    this.result = result;
   }
-  
+
   /**
-   * @return the status of hash verification.
+   * @return the parse result of this file.
    */
-  public HashStatus hashStatus() {
-    return my_hash_status;
+  public Result getResult() {
+    return this.result;
   }
-  
+
+  /**
+   * @return the computed hash of the file blob.
+   */
+  public String getHash() {
+    return this.computed_hash;
+  }
+
+  /**
+   * @return the computed hash of the file blob.
+   */
+  public String getSubmittedHash() {
+    return this.submitted_hash;
+  }
+
   /**
    * @return the file, as a binary blob.
    */
@@ -268,12 +284,10 @@ public class UploadedFile implements PersistentEntity {
    */
   @Override
   public String toString() {
-    return "UploadedFile [id=" + my_id + ", timestamp=" +
-           my_timestamp + ", county=" + my_county + 
-           ", status=" + my_status + ", filename=" +
-           my_filename + ", hash=" + my_hash + ", hash_status=" + 
-           my_hash_status + ", size=" + my_size + 
-           ", approx_record_count=" + my_approximate_record_count + "]";
+    return "UploadedFile [id=" + my_id +
+      ", county=" + my_county +
+      ", filename=" + my_filename +
+      "]";
   }
 
   /**
@@ -290,9 +304,9 @@ public class UploadedFile implements PersistentEntity {
       result &= nullableEquals(other_file.timestamp(), timestamp());
       result &= nullableEquals(other_file.county(), county());
       result &= nullableEquals(other_file.filename(), filename());
-      result &= nullableEquals(other_file.status(), status());
-      result &= nullableEquals(other_file.hash(), hash());
-      result &= nullableEquals(other_file.hashStatus(), hash());
+      result &= nullableEquals(other_file.getStatus(), getStatus());
+      result &= nullableEquals(other_file.getHash(), getHash());
+      result &= nullableEquals(other_file.getSubmittedHash(), getSubmittedHash());
       result &= nullableEquals(other_file.size(), size());
       result &= nullableEquals(other_file.approximateRecordCount(), approximateRecordCount());
     } else {
@@ -306,24 +320,16 @@ public class UploadedFile implements PersistentEntity {
    */
   @Override
   public int hashCode() {
-    return nullableHashCode(hash());
+    return nullableHashCode(getHash());
   }
   
-  /**
-   * An enumeration of file types that can be uploaded.
-   */
+  /** the possible statuses **/
   public enum FileStatus {
-    NOT_IMPORTED,
-    IMPORTED_AS_BALLOT_MANIFEST,
-    IMPORTED_AS_CVR_EXPORT
+    HASH_VERIFIED,
+    HASH_MISMATCH,
+    IMPORTING,
+    IMPORTED,
+    FAILED
   }
-  
-  /**
-   * An enumeration of hash statuses.
-   */
-  public enum HashStatus {
-    VERIFIED,
-    MISMATCH,
-    NOT_CHECKED;
-  }
+
 }

@@ -3,6 +3,8 @@ const path = require('path');
 
 
 module.exports = {
+    mode: 'production',
+
     entry: [
         './src/index.tsx',
     ],
@@ -26,10 +28,11 @@ module.exports = {
 
     plugins: [
         new webpack.DefinePlugin({
-            DEBUG: false,
+            "process.env": {'DEBUG' : false},
+	    VERSION: JSON.stringify(require("./package.json").version)
         }),
 
-        new webpack.NamedModulesPlugin(),
+      //  new webpack.NamedModulesPlugin(),
 
         new webpack.NoEmitOnErrorsPlugin(),
     ],
@@ -38,11 +41,14 @@ module.exports = {
         rules: [
             {
                 test: /\.tsx?$/,
-                loaders: [
-                    'awesome-typescript-loader'
-                ],
-                exclude: path.join(__dirname, 'node_modules'),
-                include: path.join(__dirname, 'src'),
+                loader:'awesome-typescript-loader',
+                exclude: /node_modules/,
+                include: /src/,
+            },
+            {
+                test: /\.js$/,
+                loader: 'babel-loader',
+                include: /node_modules\/string-similarity/,
             },
         ],
     },

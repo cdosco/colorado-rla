@@ -2,7 +2,6 @@ import { endpoint } from 'corla/config';
 
 import createSubmitAction from 'corla/action/createSubmitAction';
 
-
 const url = endpoint('sign-off-audit-round');
 
 const roundSignOff = createSubmitAction({
@@ -13,13 +12,15 @@ const roundSignOff = createSubmitAction({
     url,
 });
 
-
-function format(electors: Elector[]): JSON.Elector[] {
-    return electors.map(e => ({
-        first_name: e.firstName,
-        last_name: e.lastName,
-    }));
+function format(auditBoardIndex: number, electors: Elector[]): object {
+    return {
+        audit_board: electors.map(e => ({
+            first_name: e.firstName,
+            last_name: e.lastName,
+        })),
+        index: auditBoardIndex,
+    };
 }
 
-
-export default (electors: Elector[]) => roundSignOff(format(electors));
+export default (auditBoardIndex: number, electors: Elector[]) =>
+    roundSignOff(format(auditBoardIndex, electors));

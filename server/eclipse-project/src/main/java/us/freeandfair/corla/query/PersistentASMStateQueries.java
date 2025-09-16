@@ -84,7 +84,7 @@ public final class PersistentASMStateQueries {
       }
       result = asm;
     } catch (final PersistenceException e) {
-      Main.LOGGER.error("could not query database for persistent ASM state");
+      Main.LOGGER.error("could not query database for persistent ASM state" + e);
     }
     return result;
   }

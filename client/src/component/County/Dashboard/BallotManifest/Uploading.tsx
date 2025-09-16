@@ -1,13 +1,11 @@
 import * as React from 'react';
 
-import { Intent, Spinner } from '@blueprintjs/core';
-
+import { Card, Intent, Spinner } from '@blueprintjs/core';
 
 const Uploading = () => (
-    <div className='pt-card'>
+    <Card>
         <Spinner className='pt-large' intent={ Intent.PRIMARY } />
-    </div>
+    </Card>
 );
-
 
 export default Uploading;

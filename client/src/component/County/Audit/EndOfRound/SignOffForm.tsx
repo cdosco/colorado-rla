@@ -1,7 +1,6 @@
 import * as React from 'react';
 
-import { EditableText } from '@blueprintjs/core';
-
+import { Button, Card, EditableText, Intent } from '@blueprintjs/core';
 
 interface FormFieldProps {
     elector: Elector;
@@ -23,9 +22,9 @@ const ElectorFormField = (props: FormFieldProps) => {
     const { firstName, lastName } = elector;
 
     return (
-        <div className='pt-card'>
+        <Card>
             <h3>Audit Board Member #{index + 1}</h3>
-            <div className='pt-card'>
+            <Card>
                 <label>
                     <span>
                         First Name:
@@ -46,8 +45,8 @@ const ElectorFormField = (props: FormFieldProps) => {
                         />
                     </span>
                 </label>
-            </div>
-        </div>
+            </Card>
+        </Card>
     );
 };
 
@@ -86,16 +85,13 @@ const EndOfRoundForm = (props: FormProps) => {
         <div>
             { createFormField(0) }
             { createFormField(1) }
-            <button
-                className='pt-button pt-intent-primary'
-                disabled={ disableSubmitButton }
-                onClick={ submit }
-            >
+            <Button intent={ Intent.PRIMARY }
+                    disabled={ disableSubmitButton }
+                    onClick={ submit }>
                 Submit
-            </button>
+            </Button>
         </div>
     );
 };
-
 
 export default EndOfRoundForm;

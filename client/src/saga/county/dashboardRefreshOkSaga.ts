@@ -1,10 +1,6 @@
 import { has } from 'lodash';
 
-import {
-    put,
-    select,
-    takeLatest,
-} from 'redux-saga/effects';
+import { call, put, select, takeLatest } from 'redux-saga/effects';
 
 import notice from 'corla/notice';
 
@@ -14,6 +10,13 @@ import fetchCvrsToAudit from 'corla/action/county/fetchCvrsToAudit';
 
 import { parse } from 'corla/adapter/countyDashboardRefresh';
 
+function nextBallotId(state: County.AppState): number | undefined {
+    if (state.ballotUnderAuditIds && state.auditBoardIndex != null) {
+        return state.ballotUnderAuditIds[state.auditBoardIndex];
+    }
+
+    return;
+}
 
 function* countyRefreshOk({ data }: any): any {
     const state = yield select();
@@ -37,9 +40,25 @@ function* countyRefreshOk({ data }: any): any {
         }
     }
 
-    const nextId = state.ballotUnderAuditId;
+    const county = parse(data, state);
 
-    if (!nextId) { return; }
+    if (county.id) {
+        yield call(countyFetchContests, county.id);
+    }
+
+    if (has(county, 'currentRound.number')) {
+        yield call(fetchCvrsToAudit, county.currentRound!.number);
+    }
+
+    if (typeof state.auditBoardIndex !== 'number') {
+        return;
+    }
+
+    const nextId = nextBallotId(state);
+
+    if (!nextId) {
+        return;
+    }
 
     const { currentBallot } = state;
 
@@ -48,17 +67,7 @@ function* countyRefreshOk({ data }: any): any {
         // it is new. Otherwise we already have it, and fetching it
         // again would overwrite the `submitted` flag, causing us to
         // forget that we are waiting for the submission to be handled.
-        countyFetchCvr(nextId);
-    }
-
-    const county = parse(data, state);
-
-    if (county.id) {
-        countyFetchContests(county.id);
-    }
-
-    if (has(county, 'currentRound.number')) {
-        fetchCvrsToAudit(county.currentRound!.number);
+        yield call(countyFetchCvr, nextId);
     }
 }
 

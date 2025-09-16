@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
 
-
 const STARTED_STATES = [
     'BALLOT_ORDER_DEFINED',
     'AUDIT_READY_TO_START',
@@ -13,6 +12,5 @@ const STARTED_STATES = [
 function auditStarted(state: DOS.AppState): boolean {
     return _.includes(STARTED_STATES, state.asm);
 }
-
 
 export default auditStarted;

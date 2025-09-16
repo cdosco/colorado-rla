@@ -4,7 +4,6 @@ import createSubmitAction from 'corla/action/createSubmitAction';
 
 import { format } from 'corla/adapter/establishBoard';
 
-
 const url = endpoint('audit-board-sign-in');
 
 const auditBoardSignIn = createSubmitAction({
@@ -15,5 +14,6 @@ const auditBoardSignIn = createSubmitAction({
     url,
 });
 
-
-export default (board: AuditBoard) => auditBoardSignIn(format(board));
+export default (index: number, board: AuditBoard) => {
+    auditBoardSignIn(format(index, board));
+};

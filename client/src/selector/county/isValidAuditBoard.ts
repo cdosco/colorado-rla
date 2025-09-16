@@ -14,5 +14,4 @@ function isValidAuditBoard(auditBoard: any) {
         && isValidElector(auditBoard[1]) ;
 }
 
-
 export default isValidAuditBoard;

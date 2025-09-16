@@ -5,20 +5,19 @@ import {
 
 import notice from 'corla/notice';
 
-
 function* importBallotManifestOk(action: any): IterableIterator<any> {
     const { data } = action;
     const { sent } = data;
 
-    notice.ok(`Imported ballot manifest "${sent.filename}".`);
+    notice.ok(`Imported ballot manifest "${sent.fileName}".`);
 }
 
 function* importBallotManifestFail(action: any): IterableIterator<any> {
     const { data } = action;
     const { received, sent } = data;
 
-    switch (sent.hash_status) {
-    case 'MISMATCH': {
+    switch (sent.status) {
+    case 'HASH_MISMATCH': {
         notice.danger('Failed to import ballot manifest.');
         notice.warning('Please verify that the hash matches the file to be uploaded.');
         break;
@@ -43,9 +42,21 @@ function* uploadBallotManifestNetworkFail(): IterableIterator<any> {
     notice.danger('Network error: failed to upload ballot manifest.');
 }
 
+function* deleteFileOk(): IterableIterator<any> {
+    notice.ok('Successfully deleted file');
+}
+
+function* deleteFileFail(): IterableIterator<any> {
+    notice.danger('There was an error deleting the file, please try again.');
+}
+
 function createUploadingBallotManifest(uploading: boolean) {
     function* uploadingBallotManifest(action: any): IterableIterator<any> {
         const data = { uploading };
+        // delete file uses this
+        if (action.data.fileType && action.data.fileType !== 'bmi') {
+            return;
+        }
 
         yield put({ data, type: 'UPLOADING_BALLOT_MANIFEST' });
     }
@@ -59,12 +70,15 @@ const UPLOADING_FALSE = [
     'IMPORT_BALLOT_MANIFEST_OK',
     'UPLOAD_BALLOT_MANIFEST_FAIL',
     'UPLOAD_BALLOT_MANIFEST_NETWORK_FAIL',
+    'DELETE_FILE_FAIL',
+    'DELETE_FILE_OK',
+    'DELETE_FILE_NETWORK_FAIL',
 ];
 
 const UPLOADING_TRUE = [
     'UPLOAD_BALLOT_MANIFEST_SEND',
+    'DELETE_FILE_SEND',
 ];
-
 
 export default function* fileUploadSaga() {
     yield takeLatest('IMPORT_BALLOT_MANIFEST_OK', importBallotManifestOk);
@@ -73,6 +87,8 @@ export default function* fileUploadSaga() {
 
     yield takeLatest('UPLOAD_BALLOT_MANIFEST_FAIL', uploadBallotManifestFail);
     yield takeLatest('UPLOAD_BALLOT_MANIFEST_NETWORK_FAIL', uploadBallotManifestNetworkFail);
+    yield takeLatest('DELETE_FILE_OK', deleteFileOk);
+    yield takeLatest(['DELETE_FILE_FAIL', 'DELETE_FILE_NETWORK_FAIL'], deleteFileFail);
 
     yield takeLatest(UPLOADING_FALSE, createUploadingBallotManifest(false));
     yield takeLatest(UPLOADING_TRUE, createUploadingBallotManifest(true));

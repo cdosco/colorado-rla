@@ -1,7 +1,6 @@
 import * as _ from 'lodash';
 const { merge } = _;
 
-
 const parseDef = (c: any): any => {
     const { choices, description, id, name, votes_allowed } = c;
     const votesAllowed = votes_allowed;
@@ -18,7 +17,6 @@ const parse = (data: any, state: any) => {
 
     return defs;
 };
-
 
 export default function fetchContestsOk(
     state: County.AppState,

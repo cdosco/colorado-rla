@@ -5,53 +5,74 @@ import ReviewStage from './ReviewStage';
 
 import uploadAcvr from 'corla/action/county/uploadAcvr';
 
-
-interface ContainerProps {
-    countyState: County.AppState;
+interface StateProps {
+    auditBoardIndex: number;
+    comment?: string;
     currentBallot?: County.CurrentBallot;
+    isReAuditing?: boolean;
     marks?: County.ACVR;
+}
+
+interface OwnProps {
+    countyState: County.AppState;
+    currentBallotNumber?: number;
+    reviewingBallotId?: number;
+    totalBallotsForBoard?: number;
     nextStage: OnClick;
     prevStage: OnClick;
 }
 
-class ReviewStageContainer extends React.Component<ContainerProps> {
-    public render() {
-        const {
-            countyState,
-            currentBallot,
-            marks,
-            nextStage,
-            prevStage,
-        } = this.props;
+type Props = StateProps & OwnProps;
 
-        if (!currentBallot) {
-            return null;
-        }
-
-        if (!marks) {
-            return null;
-        }
-
-        return <ReviewStage countyState={ countyState }
-                            currentBallot={ currentBallot }
-                            marks={ marks }
-                            nextStage={ nextStage }
-                            prevStage={ prevStage }
-                            uploadAcvr={ uploadAcvr } />;
-    }
-}
-
-function select(countyState: County.AppState) {
-    const { currentBallot } = countyState;
+const ReviewStageContainer = (props: Props) => {
+    const {
+        auditBoardIndex,
+        comment,
+        countyState,
+        currentBallot,
+        currentBallotNumber,
+        isReAuditing,
+        marks,
+        nextStage,
+        prevStage,
+        totalBallotsForBoard,
+    } = props;
 
     if (!currentBallot) {
-        return { countyState };
+        return null;
     }
 
-    const marks = countyState.acvrs[currentBallot.id];
+    if (!marks) {
+        return null;
+    }
 
-    return { countyState, currentBallot, marks };
+    return <ReviewStage auditBoardIndex={ auditBoardIndex }
+                        comment={ comment }
+                        countyState={ countyState }
+                        currentBallot={ currentBallot }
+                        currentBallotNumber={ currentBallotNumber }
+                        isReAuditing={ isReAuditing }
+                        marks={ marks }
+                        nextStage={ nextStage }
+                        prevStage={ prevStage }
+                        totalBallotsForBoard={ totalBallotsForBoard }
+                        uploadAcvr={ uploadAcvr } />;
+};
+
+function mapStateToProps(countyState: County.AppState): StateProps {
+    const { currentBallot } = countyState;
+
+    const auditBoardIndex = countyState.auditBoardIndex || 0;
+    const comment = countyState.finalReview.comment;
+    const marks = currentBallot ? countyState.acvrs[currentBallot.id] : undefined;
+
+    return {
+        auditBoardIndex,
+        comment,
+        currentBallot,
+        isReAuditing: !!comment,
+        marks,
+    };
 }
 
-
-export default connect(select)(ReviewStageContainer);
+export default connect(mapStateToProps)(ReviewStageContainer);

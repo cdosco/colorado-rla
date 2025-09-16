@@ -1,0 +1,40 @@
+# The default properties file for ColoradoRLA
+http_port = 8888
+https_port = 8889
+locale = en_US
+county_ids = us/freeandfair/corla/county_ids.properties
+# DatabaseAuthentiation or EntrustAuthentication
+authentication_class = us.freeandfair.corla.auth.DatabaseAuthentication
+##!## authentication_class = us.freeandfair.corla.auth.EntrustAuthentication
+# if authentication class is using EntrustAuthentication, then we must
+# specify the location of the Entrust server
+#entrust_server_name = 10.10.11.232
+#authentication_server  = 10.10.11.232
+authentication_server  = 10.111.162.232
+#
+# parameters for hibernate settings and database settings
+#
+hibernate.driver = org.postgresql.Driver
+hibernate.url = jdbc:postgresql://127.0.0.1:5432/corla?reWriteBatchedInserts=true&disableColumnSantiser=true
+hibernate.user = corlaadmin
+hibernate.pass = corlasecret
+hibernate.dialect = org.hibernate.dialect.PostgreSQL9Dialect
+hibernate.hbm2ddl.auto = update
+hibernate.show_sql = false
+hibernate.c3p0.min_size = 30
+hibernate.c3p0.max_size = 140
+hibernate.c3p0.timeout = 300
+hibernate.c3p0.max_statements = 0
+hibernate.format_sql = false
+hibernate.use_sql_comments = false
+hibernate.c3p0.idle_test_period = 0
+hibernate.c3p0.numHelperThreads = 20
+#
+# parameters for CVR import transaction/batch sizes
+#
+cvr_import_transaction_size = 400
+cvr_import_batch_size = 80
+#
+# parameter to save CVR and CSV files
+#
+unix_upload_file_location=/opt/corla/file_archive/

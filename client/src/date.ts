@@ -1,15 +1,9 @@
-import * as moment from 'moment-timezone';
+import * as moment from 'moment';
 
-import { timezone } from 'corla/config';
-
-
-export function format(dob: Date): string {
-    return moment.utc(dob).format('M/D/YYYY');
+export function formatLocalDate(dob: Date): string {
+    return moment(dob).format('M/D/Y');
 }
 
-export function parse(ds: string): Date {
-    return moment.tz(ds, timezone).toDate();
+export function parseLocalDate(s: string): Date {
+    return moment(s, 'M/D/Y').startOf('day').toDate();
 }
-
-
-export default { format, parse };

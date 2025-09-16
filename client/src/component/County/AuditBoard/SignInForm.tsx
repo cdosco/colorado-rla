@@ -1,7 +1,6 @@
 import * as React from 'react';
 
-import { EditableText, Radio, RadioGroup } from '@blueprintjs/core';
-
+import { Card, EditableText, Radio, RadioGroup } from '@blueprintjs/core';
 
 interface FormProps {
     elector: AuditBoardMember;
@@ -24,8 +23,8 @@ const SignInForm = (props: FormProps) => {
 
     return (
         <div>
-            <h3>Audit Board Member</h3>
-            <div className='pt-card'>
+            <h2 className={'smallHeader'}>Audit Board Member</h2>
+            <Card>
                 <label>
                     <strong>First Name: </strong>
                     <EditableText
@@ -42,14 +41,13 @@ const SignInForm = (props: FormProps) => {
                         onConfirm={ onTextConfirm }
                     />
                 </label>
-            </div>
-            <div className='pt-card'>
+            </Card>
+            <Card>
                 <RadioGroup
                     className='rla-radio-group'
                     label='Party Affiliation'
                     onChange={ onPartyChange }
-                    selectedValue={ party }
-                >
+                    selectedValue={ party }>
                     <Radio
                         label='Democratic Party'
                         value='Democratic Party'
@@ -67,10 +65,9 @@ const SignInForm = (props: FormProps) => {
                         value='Unaffiliated'
                     />
                 </RadioGroup>
-            </div>
+            </Card>
         </div>
     );
 };
-
 
 export default SignInForm;

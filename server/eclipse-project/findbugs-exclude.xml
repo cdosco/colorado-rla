@@ -1,0 +1,13 @@
+<FindBugsFilter>
+  <Match>
+    <!-- findbugs has no sympathy for a json deserializer -->
+    <Class name="us.freeandfair.corla.json.CanonicalUpdate"/>
+  </Match>
+  <Match>
+    <Class name="us.freeandfair.corla.json.CanonicalUpdate$ChoiceChange"/>
+  </Match>
+  <Match>
+    <Class name="us.freeandfair.corla.endpoint.SetContestNames"/>
+    <Bug code="UWF"/>
+  </Match>
+</FindBugsFilter>

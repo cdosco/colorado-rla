@@ -87,6 +87,12 @@ public class Choice implements Serializable {
   public String name() {
     return my_name;
   }
+
+  /** set the name **/
+  public void setName(final String name) {
+    this.my_name = name;
+  }
+
   
   /**
    * @return the description.
@@ -118,6 +124,10 @@ public class Choice implements Serializable {
            my_description + "]";
   }
 
+  public String shortToString() {
+    return "[" + my_name + "],";
+  }
+  
   /**
    * Compare this object with another for equivalence.
    * 

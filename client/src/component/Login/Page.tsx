@@ -1,20 +1,17 @@
 import * as React from 'react';
 
-import LicenseFooter from 'corla/component/LicenseFooter';
+import LoginLayout from 'corla/component/LoginLayout';
 import LoginFormContainer from './FormContainer';
 
-
 const LoginPage = () => {
-    return (
-        <div>
-            <div className='pt-card login-page'>
-                <h2>CORLA User Login</h2>
-                <LoginFormContainer />
-            </div>
-            <LicenseFooter />
+    const main = (
+        <div className='login'>
+            <h1>Colorado RLA Software Login</h1>
+            <LoginFormContainer />
         </div>
     );
-};
 
+    return <LoginLayout main={ main } />;
+};
 
 export default LoginPage;

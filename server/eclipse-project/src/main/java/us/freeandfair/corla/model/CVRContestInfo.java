@@ -18,13 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 import com.google.gson.annotations.JsonAdapter;
 
@@ -60,7 +54,16 @@ public class CVRContestInfo implements Serializable {
    */
   @Column(updatable = false)
   private String my_comment;
-  
+
+  /**
+   * The countyId for fast bulk deletion. This is because of the apparent
+   * lacking feature of jpa; on delete cascade added to ddl
+   * the value is used in a query not in the code, hence the SuppressWarnings
+   */
+  @SuppressWarnings({"PMD.UnusedPrivateField","PMD.SingularField"})
+  @Column
+  private Long county_id;
+
   /**
    * The consensus value for this contest
    */
@@ -71,9 +74,16 @@ public class CVRContestInfo implements Serializable {
   /**
    * The choices for this contest.
    */
-  @Column(name = "choices", columnDefinition = "text")
+  @Column(name = "choices", columnDefinition = "character varying (1024)")
   @Convert(converter = StringListConverter.class)
   private List<String> my_choices = new ArrayList<>();
+
+  /**
+   * Raw, uninterpreted choices for this contest, for IRV. These raw choices are used during ballot
+   * parsing, and are not required to be stored in the database.
+   */
+  @Transient
+  private final List<String> my_raw_choices = new ArrayList<>();
 
   /**
    * Constructs an empty CVRContestInfo, solely for persistence.
@@ -103,10 +113,31 @@ public class CVRContestInfo implements Serializable {
     my_choices.addAll(the_choices);
     for (final String s : my_choices) {
       if (!my_contest.isValidChoice(s)) {
-        throw new IllegalArgumentException("invalid choice " + s + 
+        throw new IllegalArgumentException("invalid choice " + s +
                                            " for contest " + my_contest);
       }
     }
+  }
+
+  /**
+   * Constructs a CVR contest information record with the specified parameters.
+   * This includes the raw choices, for recording in IRVBallotInterpretation.
+   *
+   * @param the_contest The contest.
+   * @param the_comment The comment.
+   * @param the_consensus The consensus value.
+   * @param the_choices The choices (after any ballot interpretation has taken place).
+   * @param the_raw_choices The choices (before any ballot interpretation has taken place). Expected
+   *                        to be IRV choices with explicit parentheses (e.g. "Alice(1)").
+   * @exception IllegalArgumentException if any choice is not a valid choice for the specified contest.
+   *                                     (not counting raw choices).
+   */
+  public CVRContestInfo(final Contest the_contest, final String the_comment,
+                        final ConsensusValue the_consensus,
+                        final List<String> the_choices,
+                        final List<String> the_raw_choices) {
+    this(the_contest, the_comment, the_consensus, the_choices);
+    my_raw_choices.addAll(the_raw_choices);
   }
   
   /**
@@ -115,7 +146,12 @@ public class CVRContestInfo implements Serializable {
   public Contest contest() {
     return my_contest;
   }
-  
+
+  /** set the county id **/
+  public void setCountyId(final Long countyId) {
+    this.county_id = countyId;
+  }
+
   /**
    * @return the comment in this record.
    */
@@ -131,12 +167,17 @@ public class CVRContestInfo implements Serializable {
   }
   
   /**
-   * @return the choices in this record.
+   * @return the choices in this record, as an unmodifiable list.
    */
   public List<String> choices() {
     return Collections.unmodifiableList(my_choices);
   }
-  
+
+  /**
+   * @return the raw, uninterpreted, choices in this record.
+   */
+  public List<String> rawChoices() { return Collections.unmodifiableList(my_raw_choices);}
+
   /**
    * @return a String representation of this cast vote record.
    */

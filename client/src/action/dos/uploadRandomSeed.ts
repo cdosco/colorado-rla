@@ -2,7 +2,6 @@ import { endpoint } from 'corla/config';
 
 import createSubmitAction from 'corla/action/createSubmitAction';
 
-
 const url = endpoint('random-seed');
 
 const uploadRandomSeed = createSubmitAction({
@@ -12,6 +11,5 @@ const uploadRandomSeed = createSubmitAction({
     sendType: 'UPLOAD_RANDOM_SEED_SEND',
     url,
 });
-
 
 export default (seed: string) => uploadRandomSeed({ seed });

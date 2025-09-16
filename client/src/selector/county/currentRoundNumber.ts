@@ -4,5 +4,4 @@ function currentRoundNumber(state: County.AppState): Option<number> {
     return state.currentRound.number;
 }
 
-
 export default currentRoundNumber;

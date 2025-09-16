@@ -2,7 +2,6 @@ import { endpoint } from 'corla/config';
 
 import createSubmitAction from 'corla/action/createSubmitAction';
 
-
 const url = endpoint('reset-database');
 
 const resetDatabase = createSubmitAction({
@@ -12,6 +11,5 @@ const resetDatabase = createSubmitAction({
     sendType: 'RESET_DATABASE_SEND',
     url,
 });
-
 
 export default () => resetDatabase({});

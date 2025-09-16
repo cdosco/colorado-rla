@@ -1,0 +1,9 @@
+#
+# parameters for hibernate settings and database settings
+#
+# same as default.properties except database is corla-test
+hibernate.url = jdbc:postgresql://192.168.24.15:5432/corla?reWriteBatchedInserts=true&disableColumnSantiser=true
+hibernate.user = corlaadmin
+hibernate.pass = corlasecret
+
+hibernate.show_sql = false

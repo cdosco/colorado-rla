@@ -7,7 +7,6 @@ import session from 'corla/session';
 
 import LoginPage from './Page';
 
-
 interface LoginProps extends RouteComponentProps<void> {
     stateType: AppStateType;
 }
@@ -36,9 +35,8 @@ export class LoginContainer extends React.Component<LoginProps> {
     }
 }
 
-function select(state: AppState) {
+function mapStateToProps(state: AppState) {
     return { stateType: state.type };
 }
 
-
-export default connect(select)(LoginContainer);
+export default connect(mapStateToProps)(LoginContainer);

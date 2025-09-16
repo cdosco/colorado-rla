@@ -1,0 +1,12 @@
+# Specific to rla_export and build_deliverable.bash
+deliverable-rla_export*
+
+# Compiled python modules.
+*.pyc
+
+# Setuptools distribution folder.
+/dist/
+/build/
+
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info

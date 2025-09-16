@@ -17,6 +17,9 @@ Full command line usage synopsis:
  rla_export -h
 
 See README.md for documentation.
+
+Copyright (c) 2017 Colorado Department of State
+SPDX-License-Identifier: GPL-3.0
 """
 
 from __future__ import (print_function, division,
@@ -41,8 +44,6 @@ import getpass
 
 __author__ = "Neal McBurnett <nealmcb@freeandfair.us>"
 __date__ = "2017-10-03"
-__copyright__ = "Copyright (c) 2017 Colorado Department of State"
-__license__ = "AGPLv3"
 
 MYPACKAGE = 'rla_export'
 CORLA_INI_FILE = pkg_resources.resource_filename(MYPACKAGE, 'corla.ini')
@@ -73,6 +74,9 @@ parser.add_argument('-r, --reports', dest='reports', action='store_true',
                     help='Login and export data from RLA Tool server')
 parser.add_argument('-f, --file-downloads', dest='file_downloads', action='store_true',
                     help='Download file imports - only needed once per audit, before dice are rolled')
+parser.add_argument('--ballot_list', dest='ballot_list', action='store_true',
+                    help='Generate ballot_list for each county in location order.'
+                         'Default to False until it works again')
 parser.add_argument('--no-db-export', dest='db_export', action='store_false',
                     help='Skip the exports directly from the database.')
 parser.add_argument('-u, --url', dest='url',
@@ -214,7 +218,8 @@ class fragile(object):
 class Dotable(dict):
     """Make nested python dictionaries (json-like objects) accessable using dot notation.
 
-    MIT License. Copyright 2013 Andy Hayden <http://hayd.github.io/2013/dotable-dictionaries> 
+    This function Copyright 2013 Andy Hayden <http://hayd.github.io/2013/dotable-dictionaries> 
+    SPDX-License-Identifier: MIT
     """
 
     __getattr__= dict.__getitem__
@@ -343,7 +348,8 @@ def db_export(args, ac):
     # Note: in ColoradoRLA, the url property is used to specify the host and port,
     # but not user and password
 
-    url = ac.cp.get('p', 'hibernate.url')
+    # $HIBERNATE_URL overrides url from properties file
+    url = os.environ.get('HIBERNATE_URL', ac.cp.get('p', 'hibernate.url'))
     user = ac.cp.get('p', 'hibernate.user')
     password = ac.cp.get('p', 'hibernate.pass')
 
@@ -390,7 +396,7 @@ def db_export(args, ac):
     for row in county_ids:
         county_id = row['id']
         county_name = row['name'].replace(" ", "_")
-        random_sequence(args, ac.connection, ac.cur, county_id, county_name)
+        random_sequence(args, ac.cur, county_id, county_name)
 
     ac.connection.close()
 
@@ -405,7 +411,7 @@ SEQUENCE_SUBSEQUENCE_QUERY = """
        round AS r
     WHERE
        r.dashboard_id = %(county_id)s
-    ORDER BY county_id, round_number
+    ORDER BY round_number
     ;
 """
 
@@ -426,10 +432,22 @@ CVR_SELECTION_QUERY = """
     ;
 """
 
-def random_sequence(args, connection, cursor, county_id, county_name):
-    "Export list of ballots to be audited by county in random selection order, with dups"
+def random_sequence(args, cursor, county_id, county_name):
+    """Export list of ballots to be audited by county in random selection order,
+    with dups, with round numbers.
+
+    SEQUENCE_SUBSEQUENCE_QUERY retrieves the ballot_sequence and audit_subsequence
+    data for each county, for each round.  Each is a list of cvr_ids.
+
+    audit_subsequence is in random selection order, and includes duplicates.
+
+    ballot_sequence is in location order, and does not include duplicates,
+    or phantom records (paper ballots for which cvrs don't exist), or cvrs which
+    were already selected in previous rounds
+    """
 
     """
+    Some alternate proposed approaches:
     Probably easiest for reporting to just use the sequences in the new round table to fetch the CVRs from the dB directly (use the ballot sequences to fetch them in bulk and then the audit subsequences to present the fetched records in order).
     Another straightforward thing to do: get the cvr IDs from the ballot sequence list (because the ballots returned from the endpoint are in the same order) and use those to put the ballots in audit sequence order based on the audit subsequence list.
     """
@@ -437,39 +455,62 @@ def random_sequence(args, connection, cursor, county_id, county_name):
     try:
         cursor.execute(SEQUENCE_SUBSEQUENCE_QUERY, {'county_id': county_id})
 
-        rows = cursor.fetchall()
-        logging.debug("Row count: %d" % len(rows))
+        rounds = cursor.fetchall()
 
-        if not rows:
+        # Skip the county entirely if there are no rounds with selections
+        if not rounds:
             return
 
-        # Build a dictionary of cvrs, to replay according to the random sequence
+        logging.debug("Row count: %d" % len(rounds))
+
+        # We will build a cache of cvrs, for easy retrieval as we walk the random sequence
         cvrs = {}
 
 
         with UmaskNamedTemporaryFile(mode="w", dir=args.export_dir, delete=False) as stream:
+            filename = os.path.join(args.export_dir, 'random_sequence_%s.csv' % county_name)
+            logging.debug("created %s for %s" % (stream.name, filename))
+
             print("county_name,round_number,random_sequence_index,scanner_id,batch_id,record_id,imprinted_id,ballot_type",
                   file=stream)
             prefix = 0
-            for sequences in rows:
-                round_number = sequences['round_number']
-                ballot_sequence = json.loads(sequences['ballot_sequence'])
-                audit_subsequence = json.loads(sequences['audit_subsequence'])
+
+            for round in rounds:
+                round_number = round['round_number']
+                ballot_sequence = json.loads(round['ballot_sequence'])
+                audit_subsequence = json.loads(round['audit_subsequence'])
+
+                # Get a crude idea of whether the audit_subsequence is in random order.
+                # How many times is a given entry less than the previous one, called a jumpback?
+                old_cvr_id = 0
+                jumpbacks = 0
+                for cvr_id in audit_subsequence:
+                    if cvr_id < old_cvr_id:
+                        jumpbacks += 1
+                    old_cvr_id = cvr_id
 
                 logging.debug("random_sequence: ballot_sequence for county %s, round %d: %s" %
                               (county_name, round_number, ballot_sequence))
-                logging.debug("random_sequence: audit_subsequence for county %s, round %d: %s" %
-                              (county_name, round_number, audit_subsequence))
+                logging.debug("random_sequence: %d out of %d jumpbacks in audit_subsequence for county %s, round %d: %s" %
+                              (jumpbacks, len(audit_subsequence), county_name, round_number, audit_subsequence))
 
-                cursor.execute(CVR_SELECTION_QUERY,
-                               {'cvr_id_list': tuple(ballot_sequence)})
+                # If there are cvrs to audit in this round, cache them
+                if len(ballot_sequence) != 0:
+                    # Retrieve and record information on all the unique cvr_ids reported
+                    cursor.execute(CVR_SELECTION_QUERY,
+                                   {'cvr_id_list': tuple(ballot_sequence)})
 
-                for cvr in cursor.fetchall():
-                    cvrs[cvr['id']] = cvr
+                    for cvr in cursor.fetchall():
+                        cvrs[cvr['id']] = cvr
 
+                # logging.debug("cvrs: %s" % cvrs)
+
+                i = -1
+
+                # Print a row for each audited cvr_id, in random selection order
                 for i, cvr_id in enumerate(audit_subsequence):
                     cvr = cvrs[cvr_id]
-                    print('"%s",%d,%d,%d,%d,%d,"%s","%s"' % (
+                    print('"%s",%d,%d,%s,%s,%d,"%s","%s"' % (
                         cvr['county_name'],
                         round_number,
                         prefix + i + 1,
@@ -483,15 +524,14 @@ def random_sequence(args, connection, cursor, county_id, county_name):
                 prefix += i + 1
                 logging.debug('Total of %d selected in round %d, prefix=%d' % (i + 1, round_number, prefix))
 
-            filename = os.path.join(args.export_dir, 'random_sequence_%s.csv' % county_name)
             os.rename(stream.name, filename)
 
     except IOError as e:
         print("I/O error({0}): {1}".format(e.errno, e.strerror))
 
     except Exception as e:
-        print("e: %s, type(e): %s" % (e, type(e)))
-        logging.error("rla_export: random_sequence: failure: %s" % e)
+        logging.error("rla_export: random_sequence: failure on %s: %s. Removing temp file %s" % (filename, repr(e), stream.name))
+        os.remove(stream.name)
 
 def show_elapsed(r, *args, **kwargs):
     logging.log(25,"Endpoint %s: %s. Elapsed time %.3f" % (r.url, r, r.elapsed.total_seconds()))
@@ -652,10 +692,12 @@ def pull_endpoints(args, ac):
 
             ballot_count = county_status.rounds[-1].expected_audited_prefix_length
             if ballot_count > 0:
-                filename = os.path.join(args.export_dir, 'ballot_list_%s.csv' % county_name)
-                query = ("cvr-to-audit-download?county=%d&start=0&ballot_count=%d"
-                        "&include_audited" % (county_id, ballot_count))
-                r = download_content(session, baseurl, query, filename)
+                if args.ballot_list:
+                    # This query doesn't work in 2.0.11, so leave it out by default and avoid confusion
+                    filename = os.path.join(args.export_dir, 'ballot_list_%s.csv' % county_name)
+                    query = ("cvr-to-audit-download?county=%d&start=0&ballot_count=%d"
+                             (county_id, ballot_count))
+                    r = download_content(session, baseurl, query, filename)
 
                 filename = os.path.join(args.export_dir, 'county_report_%s.xlsx' % county_name)
                 download_content(session, baseurl, "county-report?county=%d" % county_id, filename)

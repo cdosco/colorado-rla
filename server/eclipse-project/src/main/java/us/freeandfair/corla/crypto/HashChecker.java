@@ -50,7 +50,8 @@ public final class HashChecker {
    * @return the SHA-256 hash of `a_filename`, encoded as a hexadecimal string,
    * or null if the file cannot be hashed.
    */
-  public static String hashFile(final String a_filename) {
+  public static String hashFile(final String a_filename)
+    throws Exception {
     return hashFile(new File(a_filename));
   }
   
@@ -60,34 +61,41 @@ public final class HashChecker {
    * @return the SHA-256 hash of `a_file`, encoded as a hexadecimal string,
    * or null if the file cannot be hashed.
    */
-  public static String hashFile(final File a_file) {
+  public static String hashFile(final File a_file)
+    throws FileNotFoundException,IOException,NoSuchAlgorithmException {
     String result = null;
+    final byte[] buffer = new byte[BUFFER_SIZE];
+
     try {
-      final byte[] buffer = new byte[BUFFER_SIZE];
       final MessageDigest md = MessageDigest.getInstance("SHA-256");
-      final InputStream is = new FileInputStream(a_file);
-      final DigestInputStream dis = new DigestInputStream(is, md);
-      try {
+
+      try (
+           final InputStream is = new FileInputStream(a_file);
+           final DigestInputStream dis = new DigestInputStream(is, md);
+           ) {
         int bytes;
         do {
           bytes = dis.read(buffer);
         } while (bytes != -1);
         final BigInteger bi = new BigInteger(1, md.digest());
         result = String.format("%0" + (md.digest().length << 1) + "X", bi);
-      } finally {
-        dis.close();
+      } catch (final FileNotFoundException e) {
+        Main.LOGGER.error("File to hash '" + a_file +
+                          "' disappeared before it could be hashed.");
+
+        throw e; //hash or die
+      } catch (final IOException e) {
+        Main.LOGGER.error("Unable to close file '" + a_file +
+                          "' after hashing it.");
+        throw e; //hash or die
       }
+
     } catch (final NoSuchAlgorithmException e) {
       Main.LOGGER.error("No Java security framework installed.");
-      Main.LOGGER.info("Unable to compute SHA-256 hashes.");
-    } catch (final FileNotFoundException e) {
-      Main.LOGGER.warn("File to hash '" + a_file + 
-                       "' disappeared before it could be hashed.");
-    } catch (final IOException e) {
-      Main.LOGGER.warn("Unable to close file '" + a_file +
-                       "' after hashing it.");
+      Main.LOGGER.error("Unable to compute SHA-256 hashes.");
+      throw e; //hash or die
     }
-    
+
     return result;
   }
 }

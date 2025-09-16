@@ -1,28 +1,41 @@
 import * as React from 'react';
-
+import AuditReportForm from 'corla/component/AuditReportForm';
 
 interface StatusProps {
+    auditIsComplete: boolean;
+    canRenderReport: boolean;
     currentRound: number;
     finishedCountiesCount: number;
     totalCountiesCount: number;
 }
 
 const Status = (props: StatusProps) => {
-    const { currentRound, finishedCountiesCount, totalCountiesCount } = props;
+    const {
+        auditIsComplete,
+        canRenderReport,
+        currentRound,
+        finishedCountiesCount,
+        totalCountiesCount,
+    } = props;
 
     return (
-        <div className='pt-card'>
-            <h4>Round status</h4>
+        <div className='state-dashboard-round'>
             <div>
-                Round { currentRound } in progress.
+                { !auditIsComplete && <div style={{fontSize: '18px', fontWeight: 'bold'}}>Round { currentRound } in progress</div> }
+                { auditIsComplete && <div style={{fontSize: '18px', fontWeight: 'bold'}}>Congratulations! The audit is complete.</div> }
+                <span className='state-dashboard-round-summary'>
+                    { finishedCountiesCount } of { totalCountiesCount } counties
+                    have finished this round.
+                </span>
             </div>
             <div>
-                { finishedCountiesCount } of { totalCountiesCount } Counties
-                have finished this round.
+                {canRenderReport && (<AuditReportForm
+                canRenderReport={canRenderReport}
+                /> 
+                )}
             </div>
         </div>
     );
 };
-
 
 export default Status;

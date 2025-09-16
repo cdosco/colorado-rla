@@ -5,7 +5,7 @@ export function countyState(): County.AppState {
             auditBoard: 'AUDIT_INITIAL_STATE',
             county: 'COUNTY_INITIAL_STATE',
         },
-        auditBoard: [],
+        auditBoards: {},
         contests: [],
         cvrImportPending: {
             alerted: false,
@@ -14,6 +14,9 @@ export function countyState(): County.AppState {
         cvrImportStatus: {
             state: 'NOT_ATTEMPTED',
             timestamp: new Date(),
+        },
+        finalReview: {
+            complete: false,
         },
         rounds: [],
         type: 'County',
@@ -26,15 +29,17 @@ export function dosState(): DOS.AppState {
         auditTypes: {},
         auditedContests: {},
         contests: {},
+        contestsIgnoringManifests: {},
         countyStatus: {},
         type: 'DOS',
+        generateAssertionsSummaries: [],
+        raireServiceStatus: '',
     };
 }
 
 export function loginState(): LoginAppState {
     return { type: 'Login' };
 }
-
 
 export default {
     county: countyState,

@@ -6,7 +6,6 @@ import Main from './Main';
 import auditStarted from 'corla/selector/dos/auditStarted';
 import canRenderReport from 'corla/selector/dos/canRenderReport';
 
-
 interface ContainerProps {
     auditDefined: boolean;
     canRenderReport: boolean;
@@ -19,7 +18,7 @@ class MainContainer extends React.Component<ContainerProps> {
     }
 }
 
-function select(dosState: DOS.AppState) {
+function mapStateToProps(dosState: DOS.AppState) {
     return {
         auditDefined: auditStarted(dosState),
         canRenderReport: canRenderReport(dosState),
@@ -27,5 +26,4 @@ function select(dosState: DOS.AppState) {
     };
 }
 
-
-export default connect(select)(MainContainer);
+export default connect(mapStateToProps)(MainContainer);

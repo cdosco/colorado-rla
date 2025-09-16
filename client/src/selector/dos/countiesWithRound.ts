@@ -2,7 +2,6 @@ import * as _ from 'lodash';
 
 import auditStarted from './auditStarted';
 
-
 function countiesWithRound(state: DOS.AppState, round: number): DOS.CountyStatus[] {
     if (!auditStarted(state)) {
         return [];
@@ -23,6 +22,5 @@ function countiesWithRound(state: DOS.AppState, round: number): DOS.CountyStatus
         return true;
     });
 }
-
 
 export default countiesWithRound;
